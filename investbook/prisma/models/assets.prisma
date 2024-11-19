@@ -1,0 +1,10 @@
+generator client {
+  provider = "prisma-client-js"
+  output = "../clients/assets"
+  previewFeatures = ["views"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("INVESTBOOK_ASSETS_URL")
+}
