@@ -1,17 +1,10 @@
-'''
-https://site.financialmodelingprep.com/developer/docs#symbol-list-stock-list
+from investbook.sources.fmp.endpoints import FmpTickers
 
-https://site.financialmodelingprep.com/developer/docs#company-profile-company-information
+class FMPAPI:
 
-https://site.financialmodelingprep.com/developer/docs#company-logo
+    def __init__(self, api_key: str) -> None:
+        self._api_key = api_key
 
-https://site.financialmodelingprep.com/developer/docs#stock-peers-company-information
-
-https://site.financialmodelingprep.com/developer/docs#full-quote-quote
-
-https://site.financialmodelingprep.com/developer/docs#stock-price-change-quote
-
-https://site.financialmodelingprep.com/developer/docs#income-statements-financial-statements
-
-https://site.financialmodelingprep.com/developer/docs#dividends-historical-dividends
-'''
+    @property
+    def info(self):
+         return FmpTickers(self._api_key)

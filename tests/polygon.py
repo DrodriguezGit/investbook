@@ -20,12 +20,6 @@ s = polygon.stocks.get_price('TSLA', '2024-11-18')
 pprint(f"Close: {s['close']}, High: {s['high']}")
 
 
-oc = polygon.options.get_option_contract('TSLZ')
-pprint(oc)
-o = polygon.options.get_price('TSLZ', '2024-11-12')
-# Option prices (ticketr, date)#################### Ahondar en los contratos de opciones
-pprint(o)
-
 
 i = polygon.indices.get_price('I:AGQIV', '2023-03-10')
 # Indices prices (I:ticker, date)
@@ -35,3 +29,5 @@ pprint(i)
 c = polygon.cryptos.get_price('BTC', 'EUR', '2024-11-04')
 # Crypto prices (crypto, currency, date)
 pprint(f"Precio de apertura: {c['open']},Precio de cierre: {c['close']}")
+
+# %%
