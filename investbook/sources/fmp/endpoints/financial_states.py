@@ -20,5 +20,5 @@ class FmpFinancialStates(FMPQueryManager):
             list of dictionaries
 
         """
-        return self.get(f'/v3/income-statement/{ticker}', period=period)
+        return self.get(f'/api/v3/income-statement/{ticker}', period=period)
     

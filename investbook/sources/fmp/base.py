@@ -5,7 +5,7 @@ from pprint import pprint
 class FMPQueryManager:
     def __init__(self, api_key: str) -> None:
         self.api_key = api_key
-        self.base_url = 'financialmodelingprep.com/api'
+        self.base_url = 'financialmodelingprep.com'
         self.session = rq.Session()
 
     @property

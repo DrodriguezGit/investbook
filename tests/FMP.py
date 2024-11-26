@@ -4,25 +4,24 @@ from pprint import pprint
 API_KEY='UhcusRqvRQlT1DkVdH4JFFdW8KRtXEj4'
 fmp = FMPAPI(api_key=API_KEY)
 
-s = fmp.info.stock_list() 
+s = fmp.stock_list.stock_list() 
 pprint(s[:2])
 
-p = fmp.info.company_profile('AAPL')
+p = fmp.profile.company_profile('LYG') #Probado con 'LYG' y 'AAPL'
 pprint(p)
 
-c = fmp.info.company_logo('EURUSD.png')
-#
+c = fmp.logo.company_logo('EURUSD.png', save_path='EURUSD_logo.png')  #Guarda el png en el directorio de investbook
 pprint(c)
 
-q = fmp.info.quote('AAPL')
+q = fmp.quote.quote('LYG')
 pprint(q)
 
-pc = fmp.info.price_change('AAPL')
+pc = fmp.price.price_change('LYG')
 pprint(pc)
 
-fs = fmp.financial_states('AAPL', 'annual')
+fs = fmp.finance.financial_states('LYG', 'annual')
 pprint(fs)
 
-dh = fmp.info.dividends_historical('AAPL')
+dh = fmp.dividends.dividends_historical('LYG')
 pprint(dh)
 

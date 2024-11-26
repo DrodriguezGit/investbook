@@ -15,7 +15,7 @@ class FmpStockList(FMPQueryManager):
         -
             list of dictionaries
         """
-        return self.get(f'/v3/stock/list')
+        return self.get(f'/api/v3/stock/list')
 
     
     

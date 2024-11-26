@@ -19,5 +19,5 @@ class FmpCompanyProfile(FMPQueryManager):
         -
             list of dictionaries
         """
-        return self.get(f'/v3/profile/{ticker}')
+        return self.get(f'/api/v3/profile/{ticker}')
     

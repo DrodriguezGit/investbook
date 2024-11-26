@@ -20,5 +20,5 @@ class FmpDividensHistorical(FMPQueryManager):
 
         
         """
-        return self.get(f'/v3/historical-price-full/stock_dividend/{ticker}')
+        return self.get(f'/api/v3/historical-price-full/stock_dividend/{ticker}')
     

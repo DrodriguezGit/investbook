@@ -19,4 +19,4 @@ class FmpPriceChange(FMPQueryManager):
             list of dictionaries
 
         """
-        return self.get(f'/v3/stock-price-change/{ticker}')
+        return self.get(f'/api/v3/stock-price-change/{ticker}')
