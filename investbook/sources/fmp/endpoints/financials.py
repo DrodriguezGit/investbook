@@ -2,7 +2,7 @@ from investbook.sources.fmp.base import FMPQueryManager
 
 class FmpFinancialStates(FMPQueryManager):
     
-    def financial_states(self, ticker: str, period: str):
+    def income_statement(self, ticker: str, period: str):
         """
         https://site.financialmodelingprep.com/developer/docs#income-statements-financial-statements    
      

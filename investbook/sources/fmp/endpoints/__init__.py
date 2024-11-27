@@ -1,19 +1,15 @@
-from investbook.sources.fmp.endpoints.stock_list import FmpStockList
-from investbook.sources.fmp.endpoints.company_profile import FmpCompanyProfile
-from investbook.sources.fmp.endpoints.company_logo import FmpCompanyLogo
-from investbook.sources.fmp.endpoints.quote import FmpQuote
-from investbook.sources.fmp.endpoints.prince_change import FmpPriceChange
-from investbook.sources.fmp.endpoints.financial_states import FmpFinancialStates
-from investbook.sources.fmp.endpoints.dividens_historical import FmpDividensHistorical
+from investbook.sources.fmp.endpoints.stock import FmpStock
+from investbook.sources.fmp.endpoints.company import FmpCompany
+from investbook.sources.fmp.endpoints.price import FmpPrice
+from investbook.sources.fmp.endpoints.financials import FmpFinancialStates
+from investbook.sources.fmp.endpoints.dividens import FmpDividens
 
 
 
 __all__ = [
-    "FmpStockList",
-    "FmpCompanyProfile",
-    "FmpCompanyLogo",
-    "FmpQuote",
-    "FmpPriceChange",
+    "FmpStock",
+    "FmpCompany",
+    "FmpPrice",
     "FmpFinancialStates",
-    "FmpDividensHistorical"
+    "FmpDividens"
 ]

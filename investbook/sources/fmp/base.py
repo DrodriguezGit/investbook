@@ -26,14 +26,17 @@ class FMPQueryManager:
         
         return urlunsplit(("https", base_url, endpoint, query or "", ""))
 
-    def get(self, endpoint: str, **params) -> dict:
+    def get(self, endpoint: str, as_dict: bool=True, **params) -> dict | rq.Response:
         try:
             url = self.url_maker(self.base_url, endpoint, params)
             
             response = self.session.get(url, headers=self.headers)
             response.raise_for_status()
-            
-            return response.json()
+
+            if as_dict:
+                return response.json()
+            else:
+                return response
         except rq.exceptions.HTTPError as e:
             print(f"HTTP Error: {e}")
             raise

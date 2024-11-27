@@ -1,8 +1,8 @@
 from investbook.sources.fmp.base import FMPQueryManager
 
-class FmpDividensHistorical(FMPQueryManager):
+class FmpDividens(FMPQueryManager):
     
-    def dividends_historical(self, ticker:str):
+    def historical(self, ticker:str):
         """
         https://site.financialmodelingprep.com/developer/docs#dividends-historical-dividends
         

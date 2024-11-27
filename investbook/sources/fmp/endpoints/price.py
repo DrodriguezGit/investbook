@@ -1,8 +1,8 @@
 from investbook.sources.fmp.base import FMPQueryManager
 
-class FmpPriceChange(FMPQueryManager):
+class FmpPrice(FMPQueryManager):
     
-    def price_change(self, ticker: str):
+    def change(self, ticker: str):
         """
         https://site.financialmodelingprep.com/developer/docs#stock-price-change-quote
 
