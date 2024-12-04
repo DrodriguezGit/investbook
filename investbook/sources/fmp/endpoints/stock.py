@@ -13,6 +13,23 @@ class Stock(BaseModel):
     price: Optional[float]
     symbol: Optional[str]
     type: Optional[str]
+    
+class Stock_Info(BaseModel):
+    symbol: str
+    exchangeShortName: Optional[str] = None  
+    type: Optional[str] = None  
+    name: Optional[str] = None
+    price: Optional[float] = None
+    changesPercentage: Optional[float] = None
+    dayLow: Optional[float] = None
+    dayHigh: Optional[float] = None
+    yearHigh: Optional[float] = None
+    yearLow: Optional[float] = None
+    marketCap: Optional[int] = None
+    priceAvg50: Optional[float] = None
+    priceAvg200: Optional[float] = None
+    volume: Optional[int] = None
+    timestamp: Optional[int] = None
 
 
 # ENDPOINT
@@ -33,9 +50,9 @@ class FmpStock(FMPQueryManager):
             list of Stock
         """
         
-        return [Stock.model_validate(r) for r in self.get(f'/api/v3/{type}/list')]
+        return [Stock.model_validate(r) for r in self.get(f'/api/v3/{type}/list')][0]
     
-    def info(self, ticker: str): 
+    def info(self, ticker: str) -> list[Stock_Info]: 
         """
         https://site.financialmodelingprep.com/developer/docs#full-quote-quote
 
@@ -52,7 +69,8 @@ class FmpStock(FMPQueryManager):
             list of dictionaries
 
         """
-        return self.get(f'/api/v3/quote/{ticker}')
+        return [Stock_Info.model_validate(r) for r in self.get(f'/api/v3/quote/{ticker}')][0]
+
 
     
     

@@ -1,9 +1,32 @@
 from ..base import PolygonQueryManager
 
+from __future__ import annotations
+from typing import Optional, List
+from pydantic import BaseModel, root_validator
+
+class StockPrice(BaseModel):
+    symbol: Optional[str]
+    date: Optional[str]  # Usamos 'date' en vez de 'from'
+    open: Optional[float]
+    high: Optional[float]
+    low: Optional[float]
+    close: Optional[float]
+    volume: Optional[int]
+    afterHours: Optional[float]
+    preMarket: Optional[float]
+    
+    @root_validator(pre=True)
+    def clean_data(cls, values):
+        # Limpiamos el campo 'status' y renombramos 'from' a 'date'
+        if 'status' in values:
+            del values['status']
+        if 'from' in values:
+            values['date'] = values.pop('from')  # Renombramos 'from' a 'date'
+        return values
 
 class PolygonEndpointStocks(PolygonQueryManager):
     
-    def get_price(self, ticker: str, date: str) -> dict:
+    def get_price(self, ticker: str, date: str) -> StockPrice:
         """
         https://polygon.io/docs/stocks/get_v1_open-close__stocksticker___date            
         
@@ -20,4 +43,5 @@ class PolygonEndpointStocks(PolygonQueryManager):
         -
             list of dictionaries
         """
-        return self.get(f'/v1/open-close/{ticker}/{date}')
+        return StockPrice.model_validate(self.get(f'/v1/open-close/{ticker}/{date}'))  
+ 

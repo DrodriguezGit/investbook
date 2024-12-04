@@ -10,6 +10,7 @@ python = "^3.10"
 prisma = "^0.15.0"
 nicegui = "^2.5.0"
 requests = "^2.32.3"
+pydantic = "^2.10.2"
 
 
 [build-system]

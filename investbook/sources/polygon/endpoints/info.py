@@ -1,5 +1,6 @@
 from ..base import PolygonQueryManager
 
+
 class PolygonEndpointInfo(PolygonQueryManager):
 
 

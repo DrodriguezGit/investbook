@@ -1,9 +1,23 @@
 from investbook.sources.polygon.base import PolygonQueryManager
 
+from __future__ import annotations
+from typing import Optional, List
+from pydantic import BaseModel
+
+class PolygonIndexPrice(BaseModel):
+    status: Optional[str]
+    symbol: Optional[str]
+    open: Optional[float]
+    high: Optional[float]
+    low: Optional[float]
+    close: Optional[float]
+    afterHours: Optional[float]
+    preMarket: Optional[float]
+    
 
 class PolygonEndpointIndex(PolygonQueryManager):
 
-    def get_price(self, ticker: str, date: str) -> dict:
+    def get_price(self, ticker: str, date: str) -> PolygonIndexPrice:
         """
         https://polygon.io/docs/indices/get_v1_open-close__indicesticker___date
             
@@ -20,4 +34,4 @@ class PolygonEndpointIndex(PolygonQueryManager):
         -
             list of dictionaries
         """
-        return self.get(f'/v1/open-close/{ticker}/{date}')
+        return PolygonIndexPrice.model_validate(self.get(f'/v1/open-close/{ticker}/{date}'))
