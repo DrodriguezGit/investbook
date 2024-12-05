@@ -1,8 +1,17 @@
 from investbook.sources.finhub import FINHUBAPI
 from pprint import pprint
 
-API_KEY='ct3igu1r01qrd05j401gct3igu1r01qrd05j4020'
+API_KEY='ct8pt19r01qpc9s002l0ct8pt19r01qpc9s002lg'
 finhub = FINHUBAPI(api_key=API_KEY)
 
 s = finhub.get_symbol.get_symbol('apple') 
-pprint(s)
+pprint(s[0].description)
+
+s = finhub.get_symbol.get_status('US')
+pprint(s.session)
+
+t = finhub.get_symbol.get_trends('AAPL')
+pprint(t[0].buy)
+
+q = finhub.get_quote.get_cuote('AAPL')
+pprint(q.h)
