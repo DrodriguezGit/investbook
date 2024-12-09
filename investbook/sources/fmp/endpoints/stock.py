@@ -50,7 +50,7 @@ class FmpStock(FMPQueryManager):
             list of Stock
         """
         
-        return [Stock.model_validate(r) for r in self.get(f'/api/v3/{type}/list')][0]
+        return [Stock.model_validate(r) for r in self.get(f'/api/v3/{type}/list')]
     
     def info(self, ticker: str) -> list[Stock_Info]: 
         """
@@ -69,8 +69,6 @@ class FmpStock(FMPQueryManager):
             list of dictionaries
 
         """
-        return [Stock_Info.model_validate(r) for r in self.get(f'/api/v3/quote/{ticker}')][0]
-
-
+        return [Stock_Info.model_validate(r) for r in self.get(f'/api/v3/quote/{ticker}')]
     
     

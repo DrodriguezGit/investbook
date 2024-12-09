@@ -13,7 +13,7 @@ class FinHubQueryManager:
         return {
             'Accept': "application/json",
             'Content-Type': "application/json",
-            'Authorization': f"Bearer {self.api_key}"
+            'X-Finnhub-Token': self.api_key 
         }
 
     def url_maker(self, base_url: str, endpoint: str, params: dict = None) -> str:

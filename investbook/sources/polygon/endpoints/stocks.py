@@ -1,6 +1,5 @@
-from ..base import PolygonQueryManager
-
 from __future__ import annotations
+from ..base import PolygonQueryManager
 from typing import Optional, List
 from pydantic import BaseModel, root_validator
 
@@ -21,7 +20,7 @@ class StockPrice(BaseModel):
         if 'status' in values:
             del values['status']
         if 'from' in values:
-            values['date'] = values.pop('from')  # Renombramos 'from' a 'date'
+            values['date'] = values.pop('from') 
         return values
 
 class PolygonEndpointStocks(PolygonQueryManager):

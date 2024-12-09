@@ -1,5 +1,5 @@
-from ..base import PolygonQueryManager
 from __future__ import annotations
+from ..base import PolygonQueryManager
 from typing import Optional, List
 from pydantic import BaseModel
 

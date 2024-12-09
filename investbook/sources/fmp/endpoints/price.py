@@ -32,7 +32,7 @@ class FmpPrice(FMPQueryManager):
             list of dictionaries
 
         """
-        return [Price.model_validate(r) for r in self.get(f'/api/v3/stock-price-change/{ticker}')][0]
+        return [Price.model_validate(r) for r in self.get(f'/api/v3/stock-price-change/{ticker}')]
     
     
     

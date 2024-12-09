@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import Optional
+from typing import Optional, List
 from pydantic import BaseModel
 
 from investbook.sources.fmp.base import FMPQueryManager
@@ -47,7 +47,7 @@ class Statement(BaseModel):
 
 class FmpFinancialStates(FMPQueryManager):
     
-    def income_statement(self, ticker: str, period: str) -> list[Statement]:
+    def income_statement(self, ticker: str, period: str) -> List[Statement]:
         """
         https://site.financialmodelingprep.com/developer/docs#income-statements-financial-statements    
      
