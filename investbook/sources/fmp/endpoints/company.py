@@ -1,3 +1,4 @@
+from __future__ import annotations
 from pydantic import BaseModel
 from typing import Optional
 from investbook.sources.fmp.base import FMPQueryManager
@@ -91,10 +92,3 @@ class FmpCompany(FMPQueryManager):
             list of dictionaries
         """
         return [Profile.model_validate(r) for r in self.get(f'/api/v3/profile/{ticker}')]    
-
-    
-
-    # Endpoint de pago
-    # def stock_peers(self, symbol: str):
-    #     return self.get('v4/stock_peers', symbol=symbol)
-    

@@ -53,13 +53,11 @@ class FinHubInfo(FinHubQueryManager):
         
         return: Devuelve una lista de empresas 
         """
-         # Realizar la solicitud a la API
         response = self.get('/search', q=q)
 
         # Extraer la lista de resultados del campo "result"
         result_data = response.get("result", [])
 
-        # Validar y devolver los resultados como una lista de objetos SymbolSearchResult
         return [SymbolSearch.model_validate(r) for r in result_data]
     
     def get_trends(self, symbol: str) -> List[AnalystTrend]:

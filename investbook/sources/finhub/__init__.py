@@ -1,4 +1,4 @@
-from investbook.sources.finhub.endpoints.info import FinHubSymbolLookup
+from investbook.sources.finhub.endpoints.info import FinHubInfo
 from investbook.sources.finhub.endpoints.quote import FinHubQuote
 
 
@@ -9,7 +9,7 @@ class FINHUBAPI:
 
     @property
     def get_symbol(self):
-        return FinHubSymbolLookup(self._api_key)
+        return FinHubInfo(self._api_key)
     
     @property
     def get_quote(self):

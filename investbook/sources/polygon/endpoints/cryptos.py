@@ -1,6 +1,6 @@
 from __future__ import annotations
 from ..base import PolygonQueryManager
-from typing import Optional, List
+from typing import List
 from pydantic import BaseModel
 
 class Trade(BaseModel):

@@ -1,11 +1,13 @@
 from investbook.sources.polygon import PolygonAPI
 from investbook.sources.fmp import FMPAPI
+from investbook.sources.finhub import FINHUBAPI
 
 class AssetsAPI:
 
-    def __init__(self, polygon_api_key: str, fmp_api_key:str) -> None:
+    def __init__(self, polygon_api_key: str, fmp_api_key:str, finhub_api_key:str) -> None:
         self._polygon_api_key = polygon_api_key
         self._fmp_api_key = fmp_api_key
+        self._finhub_api_key = finhub_api_key
 
     @property
     def polygon(self):
@@ -14,3 +16,7 @@ class AssetsAPI:
     @property
     def fmp(self):
         return FMPAPI(self._fmp_api_key)
+    
+    @property
+    def finhub(self):
+        return FINHUBAPI(self._finhub_api_key)
