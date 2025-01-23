@@ -1,5 +1,5 @@
 from ..base import PolygonQueryManager
-from typing import list, Optional
+from typing import List, Optional
 from pydantic import BaseModel
 
 class Ticker(BaseModel):
@@ -58,6 +58,6 @@ class PolygonEndpointInfo(PolygonQueryManager):
         """
         response_data = self.get('/v3/reference/tickers/', ticker=ticker, market=market, type=type, search=search, limit=limit)
     
-    # Extrae la lista de resultados y valida cada uno
+    
         results = response_data.get("results", [])
         return [Ticker.model_validate(item) for item in results]

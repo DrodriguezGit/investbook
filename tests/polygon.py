@@ -5,16 +5,15 @@ API_KEY='1DWuCVNmdWPBcfL8R9pffQ9UacVGA9lK'
 polygon = PolygonAPI(api_key=API_KEY)
 
 t = polygon.info.get_tickers(ticker='AAPL') 
-pprint(t[0].name)
+pprint(t)
 
-s = polygon.stocks.get_price('TSLA', '2024-11-18')
+s = polygon.stocks.get_price('TSLA', '2024-12-23') 
 # Stocks prices (ticker, date)
-pprint(s.date)
+pprint(s)
 
 i = polygon.indices.get_price('I:AGQIV', '2023-03-10')
 # Indices prices (I:ticker, date)
-pprint(i.close)
-
+pprint(i)
 
 c = polygon.cryptos.get_price('BTC', 'EUR', '2024-11-04')
 # Crypto prices (crypto, currency, date)

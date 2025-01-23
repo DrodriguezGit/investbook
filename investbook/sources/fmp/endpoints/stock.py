@@ -32,7 +32,6 @@ class Stock_Info(BaseModel):
     timestamp: Optional[int] = None
 
 
-# ENDPOINT
 
 class FmpStock(FMPQueryManager):
         
@@ -70,5 +69,6 @@ class FmpStock(FMPQueryManager):
 
         """
         return [Stock_Info.model_validate(r) for r in self.get(f'/api/v3/quote/{ticker}')]
+
     
     

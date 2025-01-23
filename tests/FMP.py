@@ -1,31 +1,35 @@
 from investbook.sources.fmp import FMPAPI
 from pprint import pprint
 
-API_KEY='UhcusRqvRQlT1DkVdH4JFFdW8KRtXEj4'
+'qd8qbTjUzah8tDi3mwM1MaDeskOanjwy'
+'UhcusRqvRQlT1DkVdH4JFFdW8KRtXEj4'
+API_KEY='4Y2glVed0qPOPExJM2Hrj2f4mUPUSPPP'
 fmp = FMPAPI(api_key=API_KEY)
 
+
 sl = fmp.stock.list()
-pprint(sl[0].name)
+pprint(sl[0])
 
-s = fmp.stock.info('AAPL')
-pprint(s[0].price)
+exit()
 
-
-p = fmp.company.get_profile('AAPL') 
-pprint(p[0].city)
+s = fmp.stock.info('TSLA')
+pprint(s)
 
 
-c = fmp.company.get_logo('EURUSD.png')  
-c.save('EURUSD.png')
+p = fmp.company.get_profile('IDEXY') 
+pprint(p)
 
-pc = fmp.price.change('AAPL')
-pprint(pc[0].day)
+# c = fmp.company.get_logo('EURUSD.png')  
+# c.save('EURUSD.png')
 
-fs = fmp.finance.income_statement('LYG', 'annual')
-pprint(fs[0].netIncomeRatio)
+pc = fmp.price.change('IDEXY')
+pprint(pc)
+
+fs = fmp.finance.income_statement('IDEXY', 'annual')
+pprint(fs)
 
 dh = fmp.dividends.historical('AAPL')
-pprint(dh[0].dividend)
+pprint(dh)
 
 
 

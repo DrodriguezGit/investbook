@@ -1,6 +1,6 @@
 from __future__ import annotations
 from investbook.sources.finhub.base import FinHubQueryManager
-from typing import Optional
+from typing import Optional, List
 from pydantic import BaseModel
 
 
