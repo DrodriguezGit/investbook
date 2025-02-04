@@ -1,6 +1,7 @@
 from __future__ import annotations
 from typing import Optional
 from pydantic import BaseModel
+from datetime import datetime
 
 from investbook.sources.fmp.base import FMPQueryManager
 
@@ -31,6 +32,11 @@ class Stock_Info(BaseModel):
     volume: Optional[int] = None
     timestamp: Optional[int] = None
 
+class Stock_News(BaseModel):
+    symbol: str
+    date: datetime
+    title: str
+    text: str
 
 
 class FmpStock(FMPQueryManager):
@@ -69,6 +75,25 @@ class FmpStock(FMPQueryManager):
 
         """
         return [Stock_Info.model_validate(r) for r in self.get(f'/api/v3/quote/{ticker}')]
+    
+    def news(self, ticker: str) -> list[Stock_News]: 
+        """
+        https://site.financialmodelingprep.com/developer/docs#full-quote-quote
+
+        Company names 
+        -
+        Devuelve información de mercado de la empresa
+        
+        Params
+        -
+         :param ticker (str)
+
+        Returns
+        -
+            list of dictionaries
+
+        """
+        return [Stock_News.model_validate(r) for r in self.get(f'/api/v3/press-releases/{ticker}')]
 
     
     

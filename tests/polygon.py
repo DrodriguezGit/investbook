@@ -7,6 +7,9 @@ polygon = PolygonAPI(api_key=API_KEY)
 t = polygon.info.get_tickers(ticker='AAPL') 
 pprint(t)
 
+n = polygon.info.get_news(ticker='AAPL', limit=1)
+pprint(n)
+
 s = polygon.stocks.get_price('TSLA', '2024-12-23') 
 # Stocks prices (ticker, date)
 pprint(s)

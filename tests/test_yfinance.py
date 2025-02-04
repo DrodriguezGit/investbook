@@ -20,7 +20,7 @@ print(googl_info)
 
 
 hist_appl = yahoo_historical.get_historical_data("AAPL", period="1y")  
-pprint(hist_appl[0])  
+pprint(hist_appl[-1])  
 
 # Obtener datos históricos
 historical_data = yahoo_historical.get_historical_data("AAPL", period="1y")

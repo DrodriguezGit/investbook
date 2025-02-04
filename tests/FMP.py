@@ -31,6 +31,7 @@ pprint(fs)
 dh = fmp.dividends.historical('AAPL')
 pprint(dh)
 
-
+n = fmp.stock.news('AAPL')
+pprint(n)
 
 

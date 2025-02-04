@@ -15,6 +15,12 @@ class Ticker(BaseModel):
     composite_figi: Optional[str] = None
     share_class_figi: Optional[str] = None
     last_updated_utc: Optional[str] = None
+    
+class News(BaseModel):
+    title: str
+    article_url: str
+    description: str
+
 
 
 class PolygonEndpointInfo(PolygonQueryManager):
@@ -37,6 +43,24 @@ class PolygonEndpointInfo(PolygonQueryManager):
             list of dictionaries
         """
         return self.get('/v3/reference/tickers/types', asset_class=asset_class)
+    
+    def get_news(self, ticker: str, limit = 1):
+        """
+        https://polygon.io/docs/stocks/get_v3_reference_tickers_types
+
+        Ticker types
+        -
+        Devuelve los tipos de ticker disponibles
+
+        Params
+        -
+        :param asset_class: stocks | options | crypto | fx | indices
+
+        Returns
+        -
+            list of dictionaries
+        """
+        return self.get(f'v2/reference/news{ticker}', limit=limit)
 
     def get_tickers(
             self, ticker:str, market: str='stocks', type: str='CS', search: str=None, limit: int=100) -> Ticker:
