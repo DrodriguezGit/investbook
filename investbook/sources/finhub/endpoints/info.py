@@ -2,6 +2,7 @@ from __future__ import annotations
 from investbook.sources.finhub.base import FinHubQueryManager
 from typing import List, Optional
 from pydantic import BaseModel
+from datetime import datetime, timedelta
 
 class SymbolSearch(BaseModel):
     description: str  
@@ -36,6 +37,11 @@ class CompanyProfile(BaseModel):
     weburl: str  
     logo: str  
     finnhubIndustry: str
+    
+class CompanyNews(BaseModel):
+    headline: str  
+    summary: str   
+    url: str 
     
 
 
@@ -101,4 +107,31 @@ class FinHubInfo(FinHubQueryManager):
         """    
         return CompanyProfile.model_validate(self.get('stock/profile2', symbol=symbol))
     
-    
+    def company_news(self, symbol: str) -> List[CompanyNews]:
+        """
+        https://finnhub.io/docs/api/company-news
+        
+        Obtiene las últimas 5 noticias de una empresa dada su cotización (símbolo) en un rango de fechas específico.
+        
+        :param symbol (str): El símbolo de la empresa (ej. 'AAPL' para Apple)
+        :param _from (str): Fecha de inicio en formato 'YYYY-MM-DD'
+        :param to (str): Fecha de fin en formato 'YYYY-MM-DD'
+        
+        return: Devuelve una lista de las últimas 5 noticias relacionadas con la empresa.
+        """
+
+        end_date = datetime.now() 
+        start_date = end_date - timedelta(days=7)
+
+        _from = start_date.strftime('%Y-%m-%d')
+        to = end_date.strftime('%Y-%m-%d')
+
+        latest_news = self.get('/company-news', symbol=symbol, _from=_from, to=to)
+
+        # Asegurarse de que la respuesta no es None
+        if latest_news is None or len(latest_news) == 0:
+            print('No hay noticias en la última semana para el símbolo', symbol)
+            return []
+
+        # Convertir la respuesta en objetos CompanyNews
+        return [CompanyNews.model_validate(news) for news in latest_news]

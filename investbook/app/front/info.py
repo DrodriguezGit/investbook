@@ -33,6 +33,7 @@ class Info:
                 
                 price_data = api.fmp.finance.income_statement(ticker, period = 'annual')    
                 
+                
             except Exception as e:
                 print(f"Error: {e}")
         
