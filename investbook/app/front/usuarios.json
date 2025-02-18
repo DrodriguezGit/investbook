@@ -1,0 +1,10 @@
+{
+    "usuarios": [
+      {
+        "username": "David",
+        "password": "abc123.", 
+        "tickers": ["AMZN", "GOOGL", "TSLA"]
+      }
+    ]
+  }
+  
