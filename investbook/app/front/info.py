@@ -22,7 +22,7 @@ class Info:
             info_ticker=None
 
             try:
-                api = AssetsAPI(fmp_api_key='UhcusRqvRQlT1DkVdH4JFFdW8KRtXEj4')
+                api = AssetsAPI(fmp_api_key='qd8qbTjUzah8tDi3mwM1MaDeskOanjwy')
                 yahoo_info = YahooFinanceInfo()
                 yahoo_historical = YahooFinanceHistorical()
                 

@@ -578,27 +578,6 @@ files = [
 ]
 
 [[package]]
-name = "html5lib"
-version = "1.1"
-description = "HTML parser based on the WHATWG HTML specification"
-optional = false
-python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
-files = [
-    {file = "html5lib-1.1-py2.py3-none-any.whl", hash = "sha256:0d78f8fde1c230e99fe37986a60526d7049ed4bf8a9fadbad5f00e22e58e041d"},
-    {file = "html5lib-1.1.tar.gz", hash = "sha256:b2e5b40261e20f354d198eae92afc10d750afb487ed5e50f9c4eaf07c184146f"},
-]
-
-[package.dependencies]
-six = ">=1.9"
-webencodings = "*"
-
-[package.extras]
-all = ["chardet (>=2.2)", "genshi", "lxml"]
-chardet = ["chardet (>=2.2)"]
-genshi = ["genshi"]
-lxml = ["lxml"]
-
-[[package]]
 name = "httpcore"
 version = "1.0.7"
 description = "A minimal low-level HTTP client."
@@ -2330,17 +2309,6 @@ files = [
 anyio = ">=3.0.0"
 
 [[package]]
-name = "webencodings"
-version = "0.5.1"
-description = "Character encoding aliases for legacy web content"
-optional = false
-python-versions = "*"
-files = [
-    {file = "webencodings-0.5.1-py2.py3-none-any.whl", hash = "sha256:a0af1213f3c2226497a97e2b3aa01a7e4bee4f403f95be16fc9acd2947514a78"},
-    {file = "webencodings-0.5.1.tar.gz", hash = "sha256:b36a1c245f2d304965eb4e0a82848379241dc04b865afcc4aab16748587e1923"},
-]
-
-[[package]]
 name = "websockets"
 version = "14.2"
 description = "An implementation of the WebSocket Protocol (RFC 6455 & 7692)"
@@ -2552,20 +2520,18 @@ propcache = ">=0.2.0"
 
 [[package]]
 name = "yfinance"
-version = "0.2.52"
+version = "0.2.54"
 description = "Download market data from Yahoo! Finance API"
 optional = false
 python-versions = "*"
 files = [
-    {file = "yfinance-0.2.52-py2.py3-none-any.whl", hash = "sha256:3ca150da85f56b999687e13b72304338499a417d5bad6af9da2aa13821992bd7"},
-    {file = "yfinance-0.2.52.tar.gz", hash = "sha256:d2c2ed9bc935596934cba99fca0f05beaa8384648f78105c77754e92f11bf72f"},
+    {file = "yfinance-0.2.54-py2.py3-none-any.whl", hash = "sha256:8754f90332158d5d19bf754c1b230864ca2d1d313182a3f94a7bc7718bbe7d90"},
+    {file = "yfinance-0.2.54.tar.gz", hash = "sha256:a4ab8e2ecba4fda5a36bff0bdc602a014adc732e5eda5d3ac283836ce40356e8"},
 ]
 
 [package.dependencies]
 beautifulsoup4 = ">=4.11.1"
 frozendict = ">=2.3.4"
-html5lib = ">=1.1"
-lxml = ">=4.9.1"
 multitasking = ">=0.0.7"
 numpy = ">=1.16.5"
 pandas = ">=1.3.0"
@@ -2581,4 +2547,4 @@ repair = ["scipy (>=1.6.3)"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "e6868c7854e909d9b8c6dc44eea16500de12e06f29229aab1ecd49e5dbe8ba79"
+content-hash = "b5b9bf3089550a61f56039cf6f7d40954259fcbbd132f873c275a293d44e0ad4"

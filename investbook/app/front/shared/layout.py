@@ -4,7 +4,7 @@ from investbook.app.front.components.layout.menu import NavigationMenu, NavItem
 class Layout:
 
     def __init__(self) -> None:
-        self.left_drawer = NavigationMenu(
+        self.left_drawer = None(
             items=[
             NavItem(text='Inicio', rt='/', icon='home'),
             NavItem(text='Information', rt='/yfinance/info', icon='info'),
