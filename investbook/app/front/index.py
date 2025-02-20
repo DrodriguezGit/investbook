@@ -8,6 +8,7 @@ from investbook.app.front.shared.colors import Colors
 from datetime import datetime, timedelta
 from investbook.sources.yfinance.info import YahooFinanceInfo  
 from datetime import datetime, timedelta
+from investbook.app.front.components.searchbar import (SearchBar,SearchStyle,DataSet)
 
 class Cache:
     def __init__(self, cache_expiry: timedelta = timedelta(hours=3)):
@@ -36,41 +37,54 @@ class Cache:
         self.save_cache(ticker, data)
 
 
-def cargar_datos_usuarios():
-    with open("investbook/app/front/usuarios.json", "r") as archivo:
-        return json.load(archivo)
+class Login:
+    
+    def __init__(self, file_path="investbook/app/front/usuarios.json"):
+        self.file_path = file_path
 
-def guardar_datos_usuarios(datos):
-    with open("investbook/app/front/usuarios.json", "w") as archivo:
-        json.dump(datos, archivo, indent=4)
+    def _load_data(self):
+        """Carga los datos de los usuarios desde el archivo JSON."""
+        with open(self.file_path, "r") as archivo:
+            return json.load(archivo)
 
+    def _save_data(self, datos):
+        """Guarda los datos de los usuarios en el archivo JSON."""
+        with open(self.file_path, "w") as archivo:
+            json.dump(datos, archivo, indent=4)
 
-def verificar_login(usuario, contrasena):
-    datos_usuarios = cargar_datos_usuarios()
-    for usuario_data in datos_usuarios["usuarios"]:
-        if usuario_data["username"] == usuario and usuario_data["password"] == contrasena:
-            return True
-    return False
+    def verificar_login(self, usuario, contrasena):
+        """Verifica si las credenciales de login son correctas."""
+        datos_usuarios = self._load_data()
+        for usuario_data in datos_usuarios["usuarios"]:
+            if usuario_data["username"] == usuario and usuario_data["password"] == contrasena:
+                return True
+        return False
 
-def obtener_tickers(usuario):
-    datos_usuarios = cargar_datos_usuarios()
-    for usuario_data in datos_usuarios["usuarios"]:
-        if usuario_data["username"] == usuario:
-            return usuario_data["tickers"]
-    return []
+    def obtener_tickers(self, usuario):
+        """Obtiene los tickers asociados a un usuario."""
+        datos_usuarios = self._load_data()
+        for usuario_data in datos_usuarios["usuarios"]:
+            if usuario_data["username"] == usuario:
+                return usuario_data["tickers"]
+        return []
 
-def agregar_ticker(usuario, ticker):
-    datos_usuarios = cargar_datos_usuarios()
-    for usuario_data in datos_usuarios["usuarios"]:
-        if usuario_data["username"] == usuario:
-            if ticker not in usuario_data["tickers"]:
-                usuario_data["tickers"].append(ticker)
-                
-    guardar_datos_usuarios(datos_usuarios)
+    def agregar_ticker(self, usuario, ticker):
+        """Agrega un nuevo ticker a los datos del usuario."""
+        datos_usuarios = self._load_data()
+        for usuario_data in datos_usuarios["usuarios"]:
+            if usuario_data["username"] == usuario:
+                if ticker not in usuario_data["tickers"]:
+                    usuario_data["tickers"].append(ticker)
+        self._save_data(datos_usuarios)
 
-
-            
-
+    def eliminar_ticker(self, usuario, ticker):
+        """Elimina un ticker de los datos del usuario."""
+        datos_usuarios = self._load_data()
+        for usuario_data in datos_usuarios["usuarios"]:
+            if usuario_data["username"] == usuario and ticker in usuario_data["tickers"]:
+                usuario_data["tickers"].remove(ticker)
+        self._save_data(datos_usuarios)
+          
 
 
 class Main:
@@ -79,48 +93,49 @@ class Main:
         self.charts = {}
         self.cards = []
         self.usuario_actual = None
-        tickers = obtener_tickers(self.usuario_actual)
+        self.login = Login()
+        
+        tickers = self.login.obtener_tickers(self.usuario_actual)
 
         @ui.page('/login')
         def login(client: Client):
             client.layout.classes(Colors.body)
-                  
-                    
+            
             with ui.row().classes('justify-center items-center h-screen w-full overflow-hidden'):
                 with ui.card().classes('flex p-8 space-y-4 shadow-lg rounded-lg bg-gradient-to-r from-[#5898d4] to-[#88c5e9] text-white'):
                     with ui.row().classes('justify-between items-start'):
                         with ui.column().classes('mr-40 items-left text-left'):
                             ui.html('<img src="https://www.google.com/favicon.ico" class="w-8 mx-auto mb-4">') 
-                            ui.label('Inicia sesión').classes('text-4xl font-semibold text-center mb-4')  
+                            ui.label('Iniciar sesión').classes('text-4xl font-semibold text-center mb-4')  
 
-                        with ui.column().classes('text-white space-y-4'):
-                            usuario_input = ui.input(label="Correo electrónico").classes('w-full text-white border-b-2 border-white bg-transparent')
-                            contrasena_input = ui.input(label="Contraseña", password=True).classes('w-full text-white border-b-2 border-white bg-transparent')
+                        with ui.column().classes('text-white space-y-4 '):
+                            usuario_input = ui.input(label="Usuario").classes('w-full text-white border-b-2 border-white bg-transparent font-semibold')
+                            contrasena_input = ui.input(label="Contraseña", password=True).classes('w-full text-white border-b-2 border-white bg-transparent font-bold')
                             
                             ui.button('Iniciar sesión', on_click=lambda: self.login_user(client, usuario_input.value, contrasena_input.value)).classes(
                                 'bg-orange-500 text-white px-6 py-3 rounded-lg shadow-lg hover:bg-orange-400 transition duration-300 ease-in-out')
-
-
-
-                
-
+                            
+                            
         @ui.page('/')
         def create_stock_cards(client: Client):
             if not self.usuario_actual:  
                 ui.navigate.to('/login')
                 return  
             
-            tickers = obtener_tickers(self.usuario_actual)
+            tickers = self.login.obtener_tickers(self.usuario_actual)
             
             client.layout.classes(Colors.body)
+            Layout()
             
-            with ui.row().classes("justify-center mb-4 items-center w-full"):  
-                ui.image("investbook.png").classes("w-48")
-                ui.icon("bar_chart").classes("text-4xl ml-4")  
+            with ui.row().classes("w-full flex justify-center items-center"):
+                ui.image("investbook1.png").classes("w-72")
+
+                # ui.icon("bar_chart").classes("text-4xl ml-4")  
                 
             with ui.row().classes("justify-end w-full pr-10"):
-                search_input = ui.input()
+                search_input = ui.input().classes("text-xl")
                 ui.button('Buscar', on_click=lambda: self.add_ticker_to_user(search_input.value)).classes('bg-blue-500 text-white px-4 py-2 rounded-lg shadow-lg hover:bg-blue-400')
+
 
             
             with ui.row().classes('grid grid-cols-2 gap-10 mx-auto w-full justify-evenly').style('padding-left: 30px; padding-right: 30px;') as self.card_container:
@@ -130,14 +145,15 @@ class Main:
 
     def add_ticker_to_user(self, ticker):
         
-        agregar_ticker(self.usuario_actual, ticker)
+        self.login.agregar_ticker(self.usuario_actual, ticker)
         
         self.create_stock_card(self.usuario_actual, ticker)
         
 
     def login_user(self, client: Client, usuario, contrasena):
-        if verificar_login(usuario, contrasena):
+        if self.login.verificar_login(usuario, contrasena):
             self.usuario_actual = usuario
+            
             ui.navigate.to('/')
         else:
             ui.label("Credenciales incorrectas").classes('text-red-500')
@@ -165,7 +181,13 @@ class Main:
                     'axisLabel': {'fontSize': 10}
                 },
                 'yAxis': {
-                    'type': 'value'
+                    'type': 'value',
+                    'name': 'Precio ($)',  
+                    'nameLocation': 'middle',  
+                    'nameTextStyle': {
+                        'fontSize': 12,
+                        'color': '#333',
+                        'padding': [0, 0, 20, 0]}
                 },
                 'series': [{
                     'data': [f"{price:.2f}" for price in close_prices],
@@ -211,11 +233,11 @@ class Main:
     
     
     def eliminar_ticker(self, usuario, ticker):
-        datos_usuarios = cargar_datos_usuarios()
+        datos_usuarios = self.login._load_data()
         for usuario_data in datos_usuarios["usuarios"]:
             if usuario_data["username"] == usuario and ticker in usuario_data["tickers"]:
                 usuario_data["tickers"].remove(ticker)
-        guardar_datos_usuarios(datos_usuarios)
+        self.login._save_data(datos_usuarios)
     
     
     def confirm_delete(self, card, ticker: str):
@@ -227,11 +249,11 @@ class Main:
                 with ui.column():
                     with ui.row():
                         ui.label("¿Quieres eliminar esta tarjeta?").classes("text-xl text-gray-900 font-semibold text-center items-center")
-                    with ui.row().classes("mt-6 grid grid-cols-2 gap-8"):
-                        with ui.column().classes("flex justify-center"):
-                            ui.button("Eliminar",on_click=lambda: self.eliminar_ticker_and_delete(card, ticker, dialog)).classes("bg-red-500 text-white px-6 py-3 rounded-xl items-center text-center")
-                        with ui.column().classes("flex justify-center"):
-                            ui.button("Atrás",on_click=lambda: dialog.close()).classes("bg-gray-500 text-white px-6 py-3 rounded-xl items-center text-center")
+                    with ui.row():
+                        with ui.column().classes("mt-6 gap-8 justify-between"):
+                            ui.button("Eliminar",on_click=lambda: self.eliminar_ticker_and_delete(card, ticker, dialog)).classes("text-white rounded-xl items-center text-center")
+                        with ui.column().classes("mt-6 gap-8 justify-between"):
+                            ui.button("Atrás",on_click=lambda: dialog.close()).classes(" text-white rounded-xl items-center text-center")
         dialog.open()
 
         
@@ -273,9 +295,9 @@ class Main:
         with self.card_container:
             with ui.column().classes('w-full'):
                 with ui.card().classes('w-full p-6 rounded-xl shadow-lg bg-blue-50') as card:
-                    with ui.row().classes('flex gap-7'):
-                        with ui.column().classes('flex-1'):
-                            ui.label(company_name).classes('text-3xl text-gray-800 text-left font-semibold')    
+                    with ui.row().classes('flex justify-between'):
+                        with ui.column().classes('flex-none w-52'):
+                            ui.label(company_name).classes('text-3xl text-gray-800 text-left font-semibold').style('overflow-wrap: break-word; word-wrap: break-word; white-space: normal;')
                             ui.label(f'({ticker})').classes('text-sm font-medium text-gray-500')
                             if historical_data:
                                 ui.label(f'${historical_data[-1].close:,.2f}').classes('text-4xl text-right font-extrabold text-gray-800')
@@ -284,7 +306,7 @@ class Main:
 
                             ui.button('Ver más datos', on_click=lambda: ui.navigate.to(f"/info/{ticker}"))
                             
-                        with ui.column().classes('flex-none w-52 h-aut  ml-40'):
+                        with ui.column().classes('flex-1 pl-56 w-52 h-auto ml-4'):
                             if historical_data:
                                 
                                 formatted_close_prices = [f"{price:.2f}" for price in close_prices]
@@ -314,8 +336,9 @@ class Main:
                             
                 
                     ui.button(icon='delete', on_click=lambda: self.confirm_delete(card, ticker)).classes(
-                            'absolute top-2 right-2 p-2 bg-blue-50 text-white font-bold hover:bg-gray-800 transition-all duration-200'
-                            ).style('width: 25px; height: 20px; border-radius: 10px;')
+                        'absolute top-1 right-1 p-1 bg-blue-50 text-white hover:bg-gray-800 transition-all duration-200').style(
+                        'width: 20px; height: 18px; border-radius: 8px; font-size: 12px;')
+
 
 
                     with ui.row().classes('w-full mt-6 '):
@@ -389,23 +412,23 @@ class Main:
 
                                             
                                             
-                                with ui.tab_panel(un).classes('bg-blue-50 p-4 rounded-lg shadow-lg'):
-                                    if not news:  
-                                        ui.label("No hay noticias de esta empresa esta última semana").classes('text-base text-gray-700 font-semibold text-center w-100 items-center')
-                                    
-                                    else:
-                                        with ui.column().classes('gap-2 p-4 rounded-lg shadow-sm w-60'):
+                                with ui.tab_panel(un).classes('bg-blue-50 p-6 rounded-lg shadow-lg'):
+                                    if news:
+                                        with ui.row().classes('max-w-5xl w-full justify-center mx-auto gap-12'):
+                                            with ui.column().classes('p-6 rounded-lg shadow-sm w-2/5'):
                                                 for article in news[:3]:
-                                                    with ui.row().classes('w-90 mb-2'):  
+                                                    with ui.row().classes('w-full mb-2'):
                                                         ui.label(f"Título de la noticia: {article.headline}").classes('text-base text-gray-700 font-bold text-left')
-                                                        
-                                                    with ui.row():             
-                                                            ui.link('Ver noticia', article.url).classes('text-blue-500 hover:underline')
-                                        
-                                        with ui.column().classes('gap-2 p-4 rounded-lg shadow-sm  w-60'):
-                                            for article in news[3:6]:
-                                                    with ui.row().classes('w-90 mb-2'):  
+                                                    with ui.row():
+                                                        ui.link('Ver noticia', article.url).classes('text-blue-500 hover:underline')
+
+                                            with ui.column().classes('p-6 rounded-lg shadow-sm w-2/5'):
+                                                for article in news[3:6]:
+                                                    with ui.row().classes('w-full mb-2'):
                                                         ui.label(f"Título de la noticia: {article.headline}").classes('text-base text-gray-700 font-bold text-left')
-                                                        
-                                                    with ui.row():             
-                                                            ui.link('Ver noticia', article.url).classes('text-blue-500 hover:underline')
+                                                    with ui.row():
+                                                        ui.link('Ver noticia', article.url).classes('text-blue-500 hover:underline')
+
+                                    else:
+                                        ui.label("No hay noticias de esta empresa esta última semana").classes('text-base text-gray-700 font-semibold text-center w-full items-center')
+

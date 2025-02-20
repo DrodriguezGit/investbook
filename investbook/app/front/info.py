@@ -5,6 +5,8 @@ from investbook.app.front.shared.colors import Colors
 from datetime import datetime
 from investbook.sources.yfinance.info import YahooFinanceInfo  
 from investbook.sources.yfinance.historical import YahooFinanceHistorical
+from investbook.app.front.shared.layout import Layout
+
 
 
 

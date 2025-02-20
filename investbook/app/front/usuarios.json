@@ -2,12 +2,12 @@
     "usuarios": [
         {
             "username": "d",
-            "password": ".",
+            "password": "d",
             "tickers": [
                 "AMZN",
                 "GOOGL",
                 "TSLA",
-                "meta"
+                "btc"
             ]
         },
         {
