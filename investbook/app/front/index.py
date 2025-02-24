@@ -85,6 +85,32 @@ class Login:
                 usuario_data["tickers"].remove(ticker)
         self._save_data(datos_usuarios)
           
+#Esta clase es la que usamos para cambiar el color de los botones de los filtros
+class ToggleButton(ui.button):
+    buttons = []  # Lista para almacenar los botones
+
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+        self.clicked = False # Marcamos que los botones están desmarcados
+        ToggleButton.buttons.append(self)  # Agregar el botón a la lista
+        self.on('click', self.toggle)
+
+    def toggle(self) -> None:
+        """Toggle the button state."""
+        # Primero, ponemos todos los botones en blanco
+        for btn in ToggleButton.buttons:
+            if btn != self:
+                btn.clicked = False
+                btn.props(f'color=white')  # Volver a blanco a los otros botones
+
+        # Luego, cambiamos el estado del botón clicado
+        self.clicked = not self.clicked
+        new_color = "grey" if self.clicked else "white"
+        self.props(f'color={new_color}')  # Cambiar color del botón actual
+        super().update()  # Actualizar el botón
+
+
+
 
 
 class Main:
@@ -96,10 +122,12 @@ class Main:
         self.login = Login()
         
         tickers = self.login.obtener_tickers(self.usuario_actual)
+        
 
         @ui.page('/login')
         def login(client: Client):
             client.layout.classes(Colors.body)
+
             
             with ui.row().classes('justify-center items-center h-screen w-full overflow-hidden'):
                 with ui.card().classes('flex p-8 space-y-4 shadow-lg rounded-lg bg-gradient-to-r from-[#5898d4] to-[#88c5e9] text-white'):
@@ -125,7 +153,7 @@ class Main:
             tickers = self.login.obtener_tickers(self.usuario_actual)
             
             client.layout.classes(Colors.body)
-            Layout()
+            Layout(self.usuario_actual)
             
             with ui.row().classes("w-full flex justify-center items-center"):
                 ui.image("investbook1.png").classes("w-72")
@@ -136,9 +164,9 @@ class Main:
                 search_input = ui.input().classes("text-xl")
                 ui.button('Buscar', on_click=lambda: self.add_ticker_to_user(search_input.value)).classes('bg-blue-500 text-white px-4 py-2 rounded-lg shadow-lg hover:bg-blue-400')
 
-
             
-            with ui.row().classes('grid grid-cols-2 gap-10 mx-auto w-full justify-evenly').style('padding-left: 30px; padding-right: 30px;') as self.card_container:
+            with ui.row().classes('grid grid-cols-1 md:grid-cols-2 gap-10 mx-auto w-full justify-evenly').style('padding-left: 30px; padding-right: 30px;') as self.card_container:
+
                     for ticker in tickers:
                         self.create_stock_card(client, ticker)
 
@@ -246,13 +274,13 @@ class Main:
             #estética de card
             with ui.card().classes("border-2 rounded-4xl bg-gray-100 p-8 w-96"):
                 
-                with ui.column():
+                with ui.column().classes('text-center items-center'):
                     with ui.row():
                         ui.label("¿Quieres eliminar esta tarjeta?").classes("text-xl text-gray-900 font-semibold text-center items-center")
                     with ui.row():
-                        with ui.column().classes("mt-6 gap-8 justify-between"):
+                        with ui.column().classes("mt-6 gap-8 justify-between text-center items-center"):
                             ui.button("Eliminar",on_click=lambda: self.eliminar_ticker_and_delete(card, ticker, dialog)).classes("text-white rounded-xl items-center text-center")
-                        with ui.column().classes("mt-6 gap-8 justify-between"):
+                        with ui.column().classes("mt-6 gap-8 justify-between text-center items-center"):
                             ui.button("Atrás",on_click=lambda: dialog.close()).classes(" text-white rounded-xl items-center text-center")
         dialog.open()
 
@@ -306,7 +334,8 @@ class Main:
 
                             ui.button('Ver más datos', on_click=lambda: ui.navigate.to(f"/info/{ticker}"))
                             
-                        with ui.column().classes('flex-1 pl-56 w-52 h-auto ml-4'):
+                        with ui.column().classes('flex-1 w-full h-auto ml-0 md:ml-4 md:pl-10 flex justify-right items-right'):
+
                             if historical_data:
                                 
                                 formatted_close_prices = [f"{price:.2f}" for price in close_prices]
@@ -378,7 +407,7 @@ class Main:
                                     with ui.column().classes('w-full gap-4 items-center'):
                                         with ui.row().classes('w-full justify-center gap-4'):
                                             for period in ["1 Semana", "1 Mes", "3 Meses", "6 Meses", "1 Año"]:
-                                                ui.button(period, on_click=lambda p=period: self.apply_filter(ticker, p, historical_data)).classes(
+                                                ToggleButton(period, on_click=lambda p=period: self.apply_filter(ticker, p, historical_data)).classes(
                                                     'bg-white text-black font-semibold px-6 py-3 rounded-lg shadow-md hover:bg-gray-200')
                                        
                                         with ui.row().classes('w-full justify-center'):

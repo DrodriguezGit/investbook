@@ -4,10 +4,10 @@
             "username": "d",
             "password": "d",
             "tickers": [
-                "AMZN",
                 "GOOGL",
                 "TSLA",
-                "btc"
+                "btc",
+                "amzn"
             ]
         },
         {
