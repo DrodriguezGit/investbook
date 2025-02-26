@@ -10,6 +10,7 @@ from investbook.sources.yfinance.info import YahooFinanceInfo
 from datetime import datetime, timedelta
 from investbook.app.front.components.searchbar import (SearchBar,SearchStyle,DataSet)
 
+
 class Cache:
     def __init__(self, cache_expiry: timedelta = timedelta(hours=3)):
         self.cache_expiry = cache_expiry
@@ -111,8 +112,6 @@ class ToggleButton(ui.button):
 
 
 
-
-
 class Main:
     def __init__(self) -> None:
         self.cache = Cache()
@@ -133,7 +132,7 @@ class Main:
                 with ui.card().classes('flex p-8 space-y-4 shadow-lg rounded-lg bg-gradient-to-r from-[#5898d4] to-[#88c5e9] text-white'):
                     with ui.row().classes('justify-between items-start'):
                         with ui.column().classes('mr-40 items-left text-left'):
-                            ui.html('<img src="https://www.google.com/favicon.ico" class="w-8 mx-auto mb-4">') 
+                            ui.image("captura2.png").classes("w-12") 
                             ui.label('Iniciar sesión').classes('text-4xl font-semibold text-center mb-4')  
 
                         with ui.column().classes('text-white space-y-4 '):
@@ -155,10 +154,6 @@ class Main:
             client.layout.classes(Colors.body)
             Layout(self.usuario_actual)
             
-            with ui.row().classes("w-full flex justify-center items-center"):
-                ui.image("investbook1.png").classes("w-72")
-
-                # ui.icon("bar_chart").classes("text-4xl ml-4")  
                 
             with ui.row().classes("justify-end w-full pr-10"):
                 search_input = ui.input().classes("text-xl")
@@ -286,9 +281,12 @@ class Main:
 
         
     def eliminar_ticker_and_delete(self, card, ticker, dialog):
-        self.eliminar_ticker(self.usuario_actual, ticker)
-        card.delete()
-        dialog.close()
+        self.eliminar_ticker(self.usuario_actual, ticker)  
+        card.delete()  
+        dialog.close()  
+        ui.navigate.reload()
+         
+
 
 
     def get_stock_data(self, ticker: str):
@@ -328,7 +326,12 @@ class Main:
                             ui.label(company_name).classes('text-3xl text-gray-800 text-left font-semibold').style('overflow-wrap: break-word; word-wrap: break-word; white-space: normal;')
                             ui.label(f'({ticker})').classes('text-sm font-medium text-gray-500')
                             if historical_data:
+                                diferencia_porcentual = ((historical_data[-1].close - historical_data[-2].close) / historical_data[-2].close) * 100
                                 ui.label(f'${historical_data[-1].close:,.2f}').classes('text-4xl text-right font-extrabold text-gray-800')
+                                if diferencia_porcentual > 0:
+                                    ui.label(f'+ {diferencia_porcentual:,.2f}%').classes('text-xl text-right text-green-500')  
+                                else:
+                                    ui.label(f'{diferencia_porcentual:,.2f}%').classes('text-xl text-right text-red-500')  
                             else:
                                 ui.label(f'No disponible').classes('text-4xl text-right font-extrabold text-gray-800')
 
@@ -358,7 +361,7 @@ class Main:
                                     'tooltip': {
                                         'trigger': 'axis'
                                     }
-                                }).classes('w-80 h-60 rounded-lg shadow-sm justify-center items-center ')
+                                }).classes('w-full sm:w-80 h-60 sm:h-60 rounded-lg shadow-sm')
                                 
                             else:
                                 ui.label("No disponible").classes(' text-center text-gray-500')

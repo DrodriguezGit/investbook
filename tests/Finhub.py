@@ -1,11 +1,11 @@
 from investbook.sources.finhub import FINHUBAPI
 from pprint import pprint
 
-API_KEY='culmc89r01qovv70aj10culmc89r01qovv70aj1g'
+API_KEY='cuquo81r01qifa4sdpngcuquo81r01qifa4sdpo0'
 finhub = FINHUBAPI(api_key=API_KEY)
 
-# s = finhub.get_symbol.get_symbol('apple') 
-# pprint(s)
+s = finhub.get_symbol.get_symbol('TSLA') 
+pprint(s)
 
 # # s = finhub.get_symbol.get_status('US')
 # # pprint(s)

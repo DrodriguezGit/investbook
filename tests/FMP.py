@@ -8,6 +8,7 @@ fmp = FMPAPI(api_key=API_KEY)
 
 
 sl = fmp.stock.list()
+pprint(sl)
 pprint(sl[0])
 
 exit()

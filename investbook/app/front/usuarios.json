@@ -4,10 +4,8 @@
             "username": "d",
             "password": "d",
             "tickers": [
-                "GOOGL",
-                "TSLA",
-                "btc",
-                "amzn"
+                "tsla",
+                "googl"
             ]
         },
         {
@@ -15,8 +13,9 @@
             "password": "abc123.",
             "tickers": [
                 "META",
-                "NFLX",
-                "DIS"
+                "DIS",
+                "btc",
+                "googl"
             ]
         }
     ]
