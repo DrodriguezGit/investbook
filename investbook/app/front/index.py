@@ -127,20 +127,30 @@ class Main:
         def login(client: Client):
             client.layout.classes(Colors.body)
 
-            
-            with ui.row().classes('justify-center items-center h-screen w-full overflow-hidden'):
-                with ui.card().classes('flex p-8 space-y-4 shadow-lg rounded-lg bg-gradient-to-r from-[#5898d4] to-[#88c5e9] text-white'):
-                    with ui.row().classes('justify-between items-start'):
-                        with ui.column().classes('mr-40 items-left text-left'):
-                            ui.image("captura2.png").classes("w-12") 
-                            ui.label('Iniciar sesión').classes('text-4xl font-semibold text-center mb-4')  
+            with ui.row().classes('justify-center items-center h-screen w-full p-4'):
+                with ui.card().classes(
+                    'shadow-lg rounded-lg bg-gradient-to-r from-[#5898d4] to-[#88c5e9] text-white '
+                    'p-8 flex md:flex-row md:space-x-10 md:items-start '
+                    'sm:flex-col sm:space-y-6 sm:w-full sm:max-w-md sm:p-6'
+                ):
+                    with ui.row().classes('justify-between items-start md:flex-row sm:flex-col sm:items-center sm:text-center'):
+                        with ui.column().classes('items-left text-left md:mr-40 sm:items-center sm:text-center'):
+                            ui.image("logo2.png").classes("w-64 mb-6 sm:w-40")  
+                            ui.label('Iniciar sesión').classes('text-4xl font-semibold md:text-4xl sm:text-2xl')  # Texto más grande solo en PC
 
-                        with ui.column().classes('text-white space-y-4 '):
-                            usuario_input = ui.input(label="Usuario").classes('w-full text-white border-b-2 border-white bg-transparent font-semibold')
-                            contrasena_input = ui.input(label="Contraseña", password=True).classes('w-full text-white border-b-2 border-white bg-transparent font-bold')
-                            
+                        with ui.column().classes('text-white space-y-4 w-full'):
+                            usuario_input = ui.input(label="Usuario").classes(
+                                'w-full text-white border-b-2 border-white bg-transparent font-semibold'
+                            )
+                            contrasena_input = ui.input(label="Contraseña", password=True).classes(
+                                'w-full text-white border-b-2 border-white bg-transparent font-bold'
+                            )
+
                             ui.button('Iniciar sesión', on_click=lambda: self.login_user(client, usuario_input.value, contrasena_input.value)).classes(
-                                'bg-orange-500 text-white px-6 py-3 rounded-lg shadow-lg hover:bg-orange-400 transition duration-300 ease-in-out')
+                                'bg-orange-500 text-white px-6 py-3 rounded-lg shadow-lg hover:bg-orange-400 transition duration-300 ease-in-out '
+                                'sm:w-full sm:px-4 sm:py-2'
+                            )
+
                             
                             
         @ui.page('/')
@@ -154,10 +164,64 @@ class Main:
             client.layout.classes(Colors.body)
             Layout(self.usuario_actual)
             
+            stocks = []
+            selected_stock = [None]  
+            
                 
-            with ui.row().classes("justify-end w-full pr-10"):
-                search_input = ui.input().classes("text-xl")
-                ui.button('Buscar', on_click=lambda: self.add_ticker_to_user(search_input.value)).classes('bg-blue-500 text-white px-4 py-2 rounded-lg shadow-lg hover:bg-blue-400')
+            async def check_stocks():
+                try:
+                    api = AssetsAPI(fmp_api_key='UhcusRqvRQlT1DkVdH4JFFdW8KRtXEj4')
+                    data = api.fmp.stock.list()
+                    return [s.symbol for s in data]  
+                except Exception as e:
+                    print(e)
+                    return []
+
+            async def update_search(event):
+                query = event.value.lower()
+                if not query:
+                    results_container.clear()
+                    return
+
+                if not stocks:
+                    stocks.extend(await check_stocks())  
+                results = [s for s in stocks if query in s.lower()][:3]  
+
+                results_container.clear() 
+                with results_container:
+                    for stock in results:
+                        ui.button(stock, on_click=lambda s=stock: select_stock(s))
+
+
+            def select_stock(stock):
+                search_input.set_value(stock)  # Establecer el valor seleccionado en el input
+                selected_stock[0] = stock  
+                results_container.clear()  # Limpiar los resultados mostrados
+                if selected_stock[0]:
+                    self.add_ticker_to_user(selected_stock[0])  
+                search_input.set_value('')  # Limpiar el input
+                search_input.set_placeholder('Buscar stock...')  # Restablecer el placeholder
+                results_container.clear()  # Limpiar el contenedor de resultados
+
+
+            with ui.row().classes("w-full justify-end items-center"): 
+                with ui.column().classes("relative w-48"):  # Contenedor relativo para posicionar el results_container
+                    search_input = ui.input(
+                        placeholder="Buscar stock...",
+                        on_change=update_search
+                    ).classes("text-xl w-full")
+
+                    results_container = ui.column().classes(
+                        "text-center items-center absolute top-full left-0 shadow-lg rounded-lg w-full z-10 mt-2"
+                    ).style(
+                        "background-color: #f7fafc; max-height: 299px; overflow-y: auto; padding: 5px;"
+                    )
+
+                ui.button('Buscar', on_click=select_stock).classes(
+                    'bg-blue-500 text-white px-4 py-2 rounded-lg shadow-lg hover:bg-blue-400 ml-4'
+    )
+
+
 
             
             with ui.row().classes('grid grid-cols-1 md:grid-cols-2 gap-10 mx-auto w-full justify-evenly').style('padding-left: 30px; padding-right: 30px;') as self.card_container:
@@ -198,19 +262,30 @@ class Main:
             close_prices = [data.close for data in filtered_data]
 
             return ui.echart({
+                'grid': {
+                    'left': '18%',  # Aumentamos el margen izquierdo para que los números sean visibles
+                    'right': '5%',
+                    'top': '10%',
+                    'bottom': '15%'
+                },
                 'xAxis': {
                     'type': 'category',
                     'data': dates,
-                    'axisLabel': {'fontSize': 10}
+                    'axisLabel': {'fontSize': 8}
                 },
                 'yAxis': {
                     'type': 'value',
-                    'name': 'Precio ($)',  
-                    'nameLocation': 'middle',  
+                    'name': 'Precio ($)',
+                    'nameLocation': 'middle',
                     'nameTextStyle': {
-                        'fontSize': 12,
+                        'fontSize': 10,
                         'color': '#333',
-                        'padding': [0, 0, 20, 0]}
+                        'padding': [0, 0, 20, 0]
+                    },
+                    'axisLabel': {  # Ajustamos el tamaño de los números del eje Y
+                        'fontSize': 10,  
+                        'color': '#333'
+                    }
                 },
                 'series': [{
                     'data': [f"{price:.2f}" for price in close_prices],
@@ -222,7 +297,9 @@ class Main:
                 'tooltip': {
                     'trigger': 'axis'
                 }
-            }).classes('w-full h-60 rounded-lg shadow-lg mt-8').style('width: 100%; height: 400px;')
+            }).classes('w-full h-auto rounded-lg shadow-sm').style('width: 100%; min-height: 200px; height: 60vh; max-height: 400px;')  
+
+
 
 
     def apply_filter(self, ticker: str, period: str, historical_data: list):
@@ -287,8 +364,6 @@ class Main:
         ui.navigate.reload()
          
 
-
-
     def get_stock_data(self, ticker: str):
         cached_data = self.cache.get(ticker)
 
@@ -337,19 +412,19 @@ class Main:
 
                             ui.button('Ver más datos', on_click=lambda: ui.navigate.to(f"/info/{ticker}"))
                             
-                        with ui.column().classes('flex-1 w-full h-auto ml-0 md:ml-4 md:pl-10 flex justify-right items-right'):
+                        with ui.column().classes('flex-1 w-full h-auto ml-0 md:ml-4 md:pl-10 flex justify-right items-right overflow-hidden'):  # Aquí agregamos overflow-hidden
 
                             if historical_data:
-                                
                                 formatted_close_prices = [f"{price:.2f}" for price in close_prices]
                                 chart = ui.echart({
                                     'xAxis': {
                                         'type': 'category',
                                         'data': dates,
-                                        'axisLabel': {'fontSize': 10}
+                                        'axisLabel': {'fontSize': 8}
                                     },
                                     'yAxis': {
-                                        'type': 'value'
+                                        'type': 'value',
+                                        'axisLabel': {'fontSize': 8}
                                     },
                                     'series': [{
                                         'data': formatted_close_prices,
@@ -361,15 +436,14 @@ class Main:
                                     'tooltip': {
                                         'trigger': 'axis'
                                     }
-                                }).classes('w-full sm:w-80 h-60 sm:h-60 rounded-lg shadow-sm')
-                                
+                                }).classes('w-full sm:w-full md:w-96 h-60 rounded-lg shadow-sm')  # Ajuste aquí: solo w-full en móvil
                             else:
-                                ui.label("No disponible").classes(' text-center text-gray-500')
-                            
-                
+                                ui.label("No disponible").classes('text-center text-gray-500')
+
                     ui.button(icon='delete', on_click=lambda: self.confirm_delete(card, ticker)).classes(
                         'absolute top-1 right-1 p-1 bg-blue-50 text-white hover:bg-gray-800 transition-all duration-200').style(
                         'width: 20px; height: 18px; border-radius: 8px; font-size: 12px;')
+
 
 
 
@@ -447,14 +521,14 @@ class Main:
                                 with ui.tab_panel(un).classes('bg-blue-50 p-6 rounded-lg shadow-lg'):
                                     if news:
                                         with ui.row().classes('max-w-5xl w-full justify-center mx-auto gap-12'):
-                                            with ui.column().classes('p-6 rounded-lg shadow-sm w-2/5'):
+                                            with ui.column().classes('p-6 rounded-lg shadow-sm w-full sm:w-2/5'):  # En móviles, columna ocupará el 100% del ancho
                                                 for article in news[:3]:
                                                     with ui.row().classes('w-full mb-2'):
                                                         ui.label(f"Título de la noticia: {article.headline}").classes('text-base text-gray-700 font-bold text-left')
                                                     with ui.row():
                                                         ui.link('Ver noticia', article.url).classes('text-blue-500 hover:underline')
 
-                                            with ui.column().classes('p-6 rounded-lg shadow-sm w-2/5'):
+                                            with ui.column().classes('p-6 rounded-lg shadow-sm w-full sm:w-2/5'):  # Lo mismo aquí, en móviles ocupará el 100%
                                                 for article in news[3:6]:
                                                     with ui.row().classes('w-full mb-2'):
                                                         ui.label(f"Título de la noticia: {article.headline}").classes('text-base text-gray-700 font-bold text-left')
@@ -463,4 +537,5 @@ class Main:
 
                                     else:
                                         ui.label("No hay noticias de esta empresa esta última semana").classes('text-base text-gray-700 font-semibold text-center w-full items-center')
+
 

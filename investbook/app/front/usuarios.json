@@ -5,7 +5,9 @@
             "password": "d",
             "tickers": [
                 "tsla",
-                "googl"
+                "META",
+                "IDEXY",
+                "AAPL"
             ]
         },
         {
@@ -15,7 +17,8 @@
                 "META",
                 "DIS",
                 "btc",
-                "googl"
+                "googl",
+                "IDEXY"
             ]
         }
     ]

@@ -108,7 +108,7 @@ class Info:
                 ui.label(f"Información básica de {info_ticker.company_name}").style('font-weight: bold; font-size: 18px; margin-bottom: 20px; margin-left: 20px')
 
                 with ui.row().classes('flex-col md:flex-row w-full gap-4').style('width: 100%'):
-                    with ui.column().classes('w-full md:w-[23%] mb-4').style('margin-left: 20px'):
+                    with ui.column().classes('w-full md:w-[23%] mb-4 sm:w-full'):
                         ui.label("Datos Generales").classes('text-lg font-semibold text-center mb-4')
                         with ui.card().style('padding: 20px; border: 1px solid #e2e8f0; border-radius: 12px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); height: 350px;'):
                             ui.label(f"Nombre: {info_ticker.company_name}").classes('text-base text-gray-700')
@@ -117,7 +117,7 @@ class Info:
                             ui.label(f"Industria: {info_ticker.industry}").classes('text-base text-gray-700')
                             ui.label(f"País: {info_ticker.country}").classes('text-base text-gray-700')
 
-                    with ui.column().classes('w-full md:w-[23%] mb-4').style('margin-left: 10px'):
+                    with ui.column().classes('w-full md:w-[23%] mb-4 sm:w-full'):
                         ui.label("Finanzas y Rendimiento").classes('text-lg font-semibold text-center mb-4')
                         with ui.card().style('padding: 20px; border: 1px solid #e2e8f0; border-radius: 12px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); height: 350px;'):
                             ui.label(f"Capitalización de mercado: ${info_ticker.market_cap:,.2f}").classes('text-base text-gray-700')
@@ -127,7 +127,7 @@ class Info:
                             ui.label(f"Ingreso neto: ${info_ticker.net_income:,.2f}").classes('text-base text-gray-700')
                             ui.label(f"Flujo de caja libre: ${info_ticker.free_cashflow:,.2f}").classes('text-base text-gray-700')
 
-                    with ui.column().classes('w-full md:w-[23%] mb-4').style('margin-left: 10px'):
+                    with ui.column().classes('w-full md:w-[23%] mb-4 sm:w-full'):
                         ui.label("Ratios y Métricas Financieras").classes('text-lg font-semibold text-center mb-4')
                         with ui.card().style('padding: 20px; border: 1px solid #e2e8f0; border-radius: 12px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); height: 350px;'):
                             sorted_financials = sorted(price_data, key=lambda x: datetime.strptime(x.date, '%Y-%m-%d'), reverse=True)
@@ -141,14 +141,14 @@ class Info:
                                 ui.label(f"EBITDA: ${financial.ebitda:,.2f}").classes('text-base text-gray-700')
                                 ui.label(f"EPS: {financial.eps}").classes('text-base text-gray-700')
 
-                    with ui.column().classes('w-full md:w-[23%] mb-4').style('margin-left: 10px'):
+                    with ui.column().classes('w-full md:w-[23%] mb-4 sm:w-full'):
                         ui.label("Información Adicional").classes('text-lg font-semibold text-center mb-4')
                         with ui.card().style('padding: 20px; border: 1px solid #e2e8f0; border-radius: 12px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); height: 350px;'):
                             ui.label(f"Empleados a tiempo completo: {info_ticker.full_time_employees}").classes('text-base text-gray-700')
                             ui.label(f"Sitio web: {info_ticker.website}").classes('text-base text-blue-500 underline')
 
                 with ui.row().classes('flex-col md:flex-row w-full gap-4').style('margin-top: 20px'):
-                    with ui.column().classes('w-full md:w-[23%] mb-4').style('margin-left: 10px'):
+                    with ui.column().classes('w-full md:w-[23%] mb-4 sm:w-full'):
                         sorted_financials = sorted(price_data, key=lambda x: datetime.strptime(x.date, '%Y-%m-%d'), reverse=True)
                         last_three_financials = sorted_financials[:1]
                         for financial in last_three_financials:
@@ -172,7 +172,7 @@ class Info:
                             if historical_data:
                                 formatted_close_prices = [f"{price:.2f}" for price in close_prices]
                                 linechart = ui.echart({
-                                    'xAxis': {'type': 'category', 'data': dates},
+                                    'xAxis': {'type': 'category', 'data': dates, 'axisLabel': {'fontSize': 8}},
                                     'yAxis': {'type': 'value'},
                                     'series': [{
                                         'data': formatted_close_prices,
