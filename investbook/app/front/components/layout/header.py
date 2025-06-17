@@ -1,6 +1,7 @@
 from nicegui import ui
 from investbook.app.front.shared.colors import Colors
 
+
 class Header(ui.header):
 
     classes_def = f'{Colors.header} row items-center justify-end px-4 py-2'
@@ -14,7 +15,7 @@ class Header(ui.header):
         self.classes(self.classes_def)
         self.props('reveal elevated')
         
-        logo_path = '/home/david/investbook/logo.png'
+        logo_path = 'investbook/app/front/images/logo.png'
 
         # Función para abrir el enlace. Está hecho feo pero las imágenes se comportan diferente
         def open_link():
@@ -30,7 +31,7 @@ class Header(ui.header):
                     ui.image(logo_path).on('click', open_link).classes("max-w-xs")
 
                 with ui.column().classes("flex-grow flex justify-left items-left"):
-                    ui.image("investbook2.png").classes("w-72")
+                    ui.image("investbook/app/front/images/investbook2.png").classes("w-72")
 
                 with ui.column().classes('flex-none ml-auto'):
                     with ui.row().classes("flex items-center"):
@@ -46,13 +47,23 @@ class Header(ui.header):
 
         self.dialog = ui.dialog().classes("bg-transparent")
 
+
+
+
+
+
+
+
     def mostrar_datos(self):
         """Muestra el pop-up con los tickers guardados."""
-        from investbook.app.front.index import Login   
+        
+        from investbook.sources.yfinance.info import YahooFinanceInfo   
 
+        from investbook.app.front.index import Login   
         login = Login()  
         tickers = login.obtener_tickers(self.usuario_actual) 
-        
+        yahoo_info = YahooFinanceInfo()
+
         with self.dialog:
             self.dialog.clear()
             
@@ -61,11 +72,18 @@ class Header(ui.header):
                 
                 if tickers:
                     for ticker in tickers:
-                        ui.label(ticker).classes('text-lg text-gray-700')
+                        try:
+                            info_ticker = yahoo_info.get_info(ticker)
+                            company_name = info_ticker.company_name if info_ticker else "Nombre no disponible"
+                        except Exception as e:
+                            company_name = "Error obteniendo nombre"
+                            print(f"Error al obtener company_name para {ticker}: {e}")
+                        
+                        ui.label(f"{company_name} ({ticker})").classes('text-lg text-gray-700')
                 else:
                     ui.label("No tienes tickers guardados").classes('text-lg text-gray-700')
                 
                 ui.button('Cerrar', on_click=self.dialog.close).classes('mt-4 bg-blue-500 text-white rounded-lg')
 
-        
         self.dialog.open()
+

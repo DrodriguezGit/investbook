@@ -40,7 +40,7 @@ class Cache:
 
 class Login:
     
-    def __init__(self, file_path="investbook/app/front/usuarios.json"):
+    def __init__(self, file_path="investbook/app/front/images/usuarios.json"):
         self.file_path = file_path
 
     def _load_data(self):
@@ -135,7 +135,7 @@ class Main:
                 ):
                     with ui.row().classes('justify-between items-start md:flex-row sm:flex-col sm:items-center sm:text-center'):
                         with ui.column().classes('items-left text-left md:mr-40 sm:items-center sm:text-center'):
-                            ui.image("logo2.png").classes("w-64 mb-6 sm:w-40")  
+                            ui.image("investbook/app/front/images/logo2.png").classes("w-64 mb-6 sm:w-40")  
                             ui.label('Iniciar sesión').classes('text-4xl font-semibold md:text-4xl sm:text-2xl')  # Texto más grande solo en PC
 
                         with ui.column().classes('text-white space-y-4 w-full'):
@@ -170,7 +170,7 @@ class Main:
                 
             async def check_stocks():
                 try:
-                    api = AssetsAPI(fmp_api_key='UhcusRqvRQlT1DkVdH4JFFdW8KRtXEj4')
+                    api = AssetsAPI(fmp_api_key='qd8qbTjUzah8tDi3mwM1MaDeskOanjwy')
                     data = api.fmp.stock.list()
                     return [s.symbol for s in data]  
                 except Exception as e:
@@ -212,9 +212,9 @@ class Main:
                     ).classes("text-xl w-full")
 
                     results_container = ui.column().classes(
-                        "text-center items-center absolute top-full left-0 shadow-lg rounded-lg w-full z-10 mt-2"
+                        "text-center items-left absolute top-full left-0 rounded-lg w-full z-10 mt-2 border-4"
                     ).style(
-                        "background-color: #f7fafc; max-height: 299px; overflow-y: auto; padding: 5px;"
+                        "background-color: #e5ecf5; max-height: 299px; overflow-y: auto; padding: 5px;"
                     )
 
                 ui.button('Buscar', on_click=select_stock).classes(
@@ -300,8 +300,6 @@ class Main:
             }).classes('w-full h-auto rounded-lg shadow-sm').style('width: 100%; min-height: 200px; height: 60vh; max-height: 400px;')  
 
 
-
-
     def apply_filter(self, ticker: str, period: str, historical_data: list):
         chart = self.charts.get(ticker)
         if chart:
@@ -381,7 +379,7 @@ class Main:
             historical_data = self.get_stock_data(ticker)
             yahoo_info = YahooFinanceInfo()
             info_ticker = yahoo_info.get_info(ticker)
-            company_name = info_ticker.company_name if info_ticker else "N/A"
+            company_name = info_ticker.company_name 
             
             dates = [data.date for data in historical_data] if historical_data else []
             close_prices = [data.close for data in historical_data] if historical_data else []

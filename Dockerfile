@@ -13,6 +13,8 @@ RUN pip install $DIST
 
 COPY investbook /app/investbook
 
+COPY investbook/app/front/images/ /app/front/images/
+
 EXPOSE 8080
 
 CMD ["python", "/app/investbook/__main__.py"]

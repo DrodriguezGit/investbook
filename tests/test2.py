@@ -402,3 +402,72 @@
 #                                 ui.label(f"Ratio rápido: {info_ticker.quick_ratio:,.3f}").classes('text-lg text-gray-700')
 #                                 ui.label(f"Ratio corriente: {info_ticker.current_ratio:,.3f}").classes('text-lg text-gray-700')
 ####################################
+# from nicegui import ui, Client
+# from random import randint
+
+# class Main:
+#     def __init__(self) -> None:
+#         self.usuario_actual = None
+
+#     def create_stock_card(self, client: Client, ticker: str, period: str = "1y"):
+#         # Generamos datos de ejemplo
+#         historical_data = [{'date': f"2023-12-{i}", 'close': randint(100, 500)} for i in range(1, 31)]
+#         company_name = f"Company {ticker}"
+        
+#         dates = [data['date'] for data in historical_data]
+#         close_prices = [data['close'] for data in historical_data]
+
+#         with self.card_container:
+#             with ui.column().classes('w-full'):
+#                 with ui.card().classes('w-full p-6 rounded-xl shadow-lg bg-blue-50') as card:
+#                     with ui.row().classes('flex justify-between'):
+#                         with ui.column().classes('flex-none w-52'):
+#                             ui.label(company_name).classes('text-3xl text-gray-800 text-left font-semibold')
+#                             ui.label(f'({ticker})').classes('text-sm font-medium text-gray-500')
+#                             ui.label(f'${close_prices[-1]:,.2f}').classes('text-4xl text-right font-extrabold text-gray-800')
+#                             ui.button('Ver más datos', on_click=lambda: ui.navigate.to(f"/info/{ticker}"))
+                        
+#                         with ui.column().classes('flex-1 w-full h-auto ml-0 md:ml-4 md:pl-10 flex justify-right items-right overflow-hidden'):
+#                             ui.label(f"Último precio: ${close_prices[-1]:,.2f}")
+
+#                     ui.button(icon='delete', on_click=lambda: self.confirm_delete(card, ticker)).classes(
+#                         'absolute top-1 right-1 p-1 bg-blue-50 text-white hover:bg-gray-800 transition-all duration-200').style(
+#                         'width: 20px; height: 18px; border-radius: 8px; font-size: 12px;')
+
+#     def confirm_delete(self, card, ticker: str):
+#         with ui.dialog() as dialog:
+#             with ui.card().classes("border-2 rounded-4xl bg-gray-100 p-8 w-96"):
+#                 with ui.column().classes('text-center items-center'):
+#                     ui.label(f"¿Quieres eliminar {ticker}?").classes("text-xl text-gray-900 font-semibold")
+#                     ui.button("Eliminar", on_click=lambda: card.delete()).classes("text-white rounded-xl")
+#                     ui.button("Atrás", on_click=lambda: dialog.close()).classes("text-white rounded-xl")
+
+#     def root(self, client: Client):
+#         tickers = ["AAPL", "GOOG", "TSLA"]  # Tickers de ejemplo
+#         self.card_container = ui.column().classes('grid grid-cols-1 md:grid-cols-2 gap-10 mx-auto w-full justify-evenly')
+
+#         for ticker in tickers:
+#             self.create_stock_card(client, ticker)
+
+# # Iniciar la aplicación
+# main = Main()
+
+# @ui.page('/')
+# def root(client: Client):
+#     main.root(client)
+
+# ui.run()
+
+
+
+# from nicegui import ui
+
+# # Crear una interfaz
+# def on_button_click():
+#     ui.label('¡Hola desde NiceGUI!')
+
+# # Crear un botón en la interfaz
+# ui.button('Haz clic aquí', on_click=on_button_click)
+
+# # Ejecutar la interfaz web
+# ui.run()
