@@ -1,6 +1,7 @@
 from pydantic import BaseModel
 import yfinance as yf
 
+
 class StockInfo(BaseModel):
     symbol: str
     company_name: str
@@ -20,8 +21,6 @@ class StockInfo(BaseModel):
     debt_to_equity: float
     quick_ratio: float
     current_ratio: float
-    free_cashflow: float
-    recommendation: str
 
     
 
@@ -63,8 +62,6 @@ class YahooFinanceInfo:
             debt_to_equity=info.get('debtToEquity', 0.0),
             quick_ratio=info.get('quickRatio', 0.0),
             current_ratio=info.get('currentRatio', 0.0),
-            free_cashflow=info.get('freeCashflow', 0.0),
-            recommendation=info.get('recommendationKey', 'N/A')
         )
         
         

@@ -1,9 +1,7 @@
 from investbook.sources.fmp import FMPAPI
 from pprint import pprint
 
-'qd8qbTjUzah8tDi3mwM1MaDeskOanjwy'
-'UhcusRqvRQlT1DkVdH4JFFdW8KRtXEj4'
-API_KEY='4Y2glVed0qPOPExJM2Hrj2f4mUPUSPPP'
+API_KEY='UhcusRqvRQlT1DkVdH4JFFdW8KRtXEj4'
 fmp = FMPAPI(api_key=API_KEY)
 
 

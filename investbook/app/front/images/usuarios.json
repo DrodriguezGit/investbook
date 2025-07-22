@@ -1,20 +1,11 @@
 {
     "usuarios": [
         {
-            "username": "Mateo",
-            "password": "abc123.",
+            "username": "b",
+            "password": "b",
             "tickers": [
-                "tsla",
-                "META",
-                "AAPL"
-            ]
-        },
-        {
-            "username": "Catuxa",
-            "password": "abc123.",
-            "tickers": [
-                "DIS",
-                "googl",
+                "AAPL",
+                "TSLA",
                 "IDEXY"
             ]
         }

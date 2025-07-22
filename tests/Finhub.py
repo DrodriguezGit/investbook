@@ -1,7 +1,8 @@
 from investbook.sources.finhub import FINHUBAPI
 from pprint import pprint
 
-API_KEY='cuquo81r01qifa4sdpngcuquo81r01qifa4sdpo0'
+#Si da: "Error: Too Many Requests. Rate limited. Try after a while." cambiar api_key en su web
+API_KEY='d1v22gpr01qujmdf7890d1v22gpr01qujmdf789g'
 finhub = FINHUBAPI(api_key=API_KEY)
 
 # s = finhub.get_symbol.get_symbol('TSLA') 

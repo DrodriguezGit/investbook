@@ -9,6 +9,7 @@ from datetime import datetime, timedelta
 from investbook.sources.yfinance.info import YahooFinanceInfo  
 from datetime import datetime, timedelta
 from investbook.app.front.components.searchbar import (SearchBar,SearchStyle,DataSet)
+import asyncio
 
 
 class Cache:
@@ -114,11 +115,15 @@ class ToggleButton(ui.button):
 
 class Main:
     def __init__(self) -> None:
-        self.cache = Cache()
+        self.historical_cache = Cache()
+        self.info_cache = Cache()
+        self.news_cache = Cache()
+
         self.charts = {}
         self.cards = []
         self.usuario_actual = None
         self.login = Login()
+        self.api_semaphore = asyncio.Semaphore(2)
         
         tickers = self.login.obtener_tickers(self.usuario_actual)
         
@@ -154,25 +159,24 @@ class Main:
                             
                             
         @ui.page('/')
-        def create_stock_cards(client: Client):
-            if not self.usuario_actual:  
+        async def create_stock_cards(client: Client):
+            if not self.usuario_actual:
                 ui.navigate.to('/login')
-                return  
-            
+                return
+
             tickers = self.login.obtener_tickers(self.usuario_actual)
-            
+
             client.layout.classes(Colors.body)
             Layout(self.usuario_actual)
-            
+
             stocks = []
-            selected_stock = [None]  
-            
-                
+            selected_stock = [None]
+
             async def check_stocks():
                 try:
-                    api = AssetsAPI(fmp_api_key='qd8qbTjUzah8tDi3mwM1MaDeskOanjwy')
+                    api = AssetsAPI(fmp_api_key='4Y2glVed0qPOPExJM2Hrj2f4mUPUSPPP')
                     data = api.fmp.stock.list()
-                    return [s.symbol for s in data]  
+                    return [s.symbol for s in data]
                 except Exception as e:
                     print(e)
                     return []
@@ -184,28 +188,26 @@ class Main:
                     return
 
                 if not stocks:
-                    stocks.extend(await check_stocks())  
-                results = [s for s in stocks if query in s.lower()][:3]  
+                    stocks.extend(await check_stocks())
+                results = [s for s in stocks if query in s.lower()][:3]
 
-                results_container.clear() 
+                results_container.clear()
                 with results_container:
                     for stock in results:
-                        ui.button(stock, on_click=lambda s=stock: select_stock(s))
+                        ui.button(stock, on_click=lambda s=stock: select_stock(s, client)) # Pasa 'client' aquí
 
-
-            def select_stock(stock):
-                search_input.set_value(stock)  # Establecer el valor seleccionado en el input
-                selected_stock[0] = stock  
-                results_container.clear()  # Limpiar los resultados mostrados
+            async def select_stock(stock, client: Client): # Asegúrate de que reciba 'client'
+                search_input.set_value(stock)
+                selected_stock[0] = stock
+                results_container.clear()
                 if selected_stock[0]:
-                    self.add_ticker_to_user(selected_stock[0])  
-                search_input.set_value('')  # Limpiar el input
-                search_input.set_placeholder('Buscar stock...')  # Restablecer el placeholder
-                results_container.clear()  # Limpiar el contenedor de resultados
+                    await self.add_ticker_to_user(selected_stock[0], client) # Pasa 'client' aquí
+                search_input.set_value('')
+                search_input.placeholder = 'Buscar stock...'
+                results_container.clear()
 
-
-            with ui.row().classes("w-full justify-end items-center"): 
-                with ui.column().classes("relative w-48"):  # Contenedor relativo para posicionar el results_container
+            with ui.row().classes("w-full justify-end items-center"):
+                with ui.column().classes("relative w-48"):
                     search_input = ui.input(
                         placeholder="Buscar stock...",
                         on_change=update_search
@@ -217,24 +219,55 @@ class Main:
                         "background-color: #e5ecf5; max-height: 299px; overflow-y: auto; padding: 5px;"
                     )
 
-                ui.button('Buscar', on_click=select_stock).classes(
+                ui.button('Buscar', on_click=lambda: select_stock(search_input.value, client)).classes( # Pasa 'client' aquí también si usas este botón
                     'bg-blue-500 text-white px-4 py-2 rounded-lg shadow-lg hover:bg-blue-400 ml-4'
-    )
+                )
 
-
-
-            
             with ui.row().classes('grid grid-cols-1 md:grid-cols-2 gap-10 mx-auto w-full justify-evenly').style('padding-left: 30px; padding-right: 30px;') as self.card_container:
+                card_creation_tasks = []
+                for ticker in tickers:
+                    card_creation_tasks.append(self.create_stock_card(client, ticker))
+                await asyncio.gather(*card_creation_tasks)
 
-                    for ticker in tickers:
-                        self.create_stock_card(client, ticker)
 
-
-    def add_ticker_to_user(self, ticker):
-        
+    async def add_ticker_to_user(self, ticker, client: Client):
         self.login.agregar_ticker(self.usuario_actual, ticker)
-        
-        self.create_stock_card(self.usuario_actual, ticker)
+        with client:
+            ui.notify(f"Añadiendo {ticker} a tu cartera...", type='info')
+            await ui.run_javascript('window.location.reload()')
+
+    # Nuevas funciones para obtener datos con cachés específicas
+    async def get_stock_data(self, ticker: str):
+        cached_data = self.historical_cache.get(ticker) # Usa la caché de historial
+        if cached_data:
+            return cached_data
+        else:
+            data = await self.fetch_historical_data_from_api(ticker)
+            if data:
+                self.historical_cache.set(ticker, data)
+            return data
+
+    async def get_info_data(self, ticker: str):
+        cached_data = self.info_cache.get(ticker) # Usa la caché de información
+        if cached_data:
+            return cached_data
+        else:
+            yahoo_info = YahooFinanceInfo()
+            info = await asyncio.to_thread(yahoo_info.get_info, ticker)
+            if info:
+                self.info_cache.set(ticker, info)
+            return info
+
+    async def get_news_data(self, ticker: str):
+        cached_data = self.news_cache.get(ticker) # Usa la caché de noticias
+        if cached_data:
+            return cached_data
+        else:
+            api = AssetsAPI(finhub_api_key='d1vlb09r01qqgeem6m80d1vlb09r01qqgeem6m8g')
+            news = await asyncio.to_thread(api.finhub.get_symbol.company_news, ticker)
+            if news:
+                self.news_cache.set(ticker, news)
+            return news
         
 
     def login_user(self, client: Client, usuario, contrasena):
@@ -324,10 +357,18 @@ class Main:
         self.charts[ticker] = new_chart_options
 
 
-    def fetch_data_from_api(self, ticker: str):
-        yahoo_historical = YahooFinanceHistorical()
-        historical_data = yahoo_historical.get_historical_data(ticker, period="1y")
-        return historical_data
+    async def fetch_historical_data_from_api(self, ticker: str):
+            print(f"[{datetime.now()}] Intentando obtener historical data para {ticker}...")
+            try:
+                yahoo_historical = YahooFinanceHistorical()
+                historical_data = await asyncio.wait_for(asyncio.to_thread(yahoo_historical.get_historical_data, ticker, period="1y"), timeout=20)
+                print(f"[{datetime.now()}] Obtenido historical data para {ticker}.")
+                await asyncio.sleep(1) # Pausa
+                return historical_data
+            except Exception as e:
+                print(f"[{datetime.now()}] ERROR al obtener historical data para {ticker}: {e}")
+                ui.notify(f"Error al cargar datos históricos para {ticker}: {e}", color='negative')
+                return None
     
     
     def eliminar_ticker(self, usuario, ticker):
@@ -362,33 +403,37 @@ class Main:
         ui.navigate.reload()
          
 
-    def get_stock_data(self, ticker: str):
-        cached_data = self.cache.get(ticker)
+    async def get_stock_data(self, ticker: str):
+        # Usa self.historical_cache para los datos históricos
+        cached_data = self.historical_cache.get(ticker)
 
         if cached_data:
             print(f"Usando datos de caché para {ticker}")
             return cached_data
         else:
-            data = self.fetch_data_from_api(ticker)
-            self.cache.set(ticker, data)
+            # Ahora esperamos el resultado de la coroutine
+            data = await self.fetch_historical_data_from_api(ticker)
+            if data: # Solo guarda en caché si los datos se obtuvieron correctamente
+                # Usa self.historical_cache para guardar los datos históricos
+                self.historical_cache.set(ticker, data)
             return data
         
         
-    def create_stock_card(self, client: Client, ticker: str, period: str = "1y", prepend: bool = False):
+    async def create_stock_card(self, client: Client, ticker: str, period: str = "1y", prepend: bool = False):
         try:
-            historical_data = self.get_stock_data(ticker)
-            yahoo_info = YahooFinanceInfo()
-            info_ticker = yahoo_info.get_info(ticker)
-            company_name = info_ticker.company_name 
-            
+            historical_data = await self.get_stock_data(ticker) # Espera los datos históricos
+            info_ticker = await self.get_info_data(ticker) # Espera la información del ticker
+            news = await self.get_news_data(ticker) # Espera las noticias
+
+            company_name = info_ticker.company_name
+
             dates = [data.date for data in historical_data] if historical_data else []
             close_prices = [data.close for data in historical_data] if historical_data else []
-            
-            api = AssetsAPI(finhub_api_key='cuquo81r01qifa4sdpngcuquo81r01qifa4sdpo0')
-            news = api.finhub.get_symbol.company_news(ticker)
-            
+
         except Exception as e:
-            print(f"Error: {e}")
+            print(f"Error en create_stock_card para {ticker}: {e}")
+            with client:
+                ui.notify(f"No se pudo crear la tarjeta para {ticker}. Error: {e}", color='negative')
             return
 
         with self.card_container:
