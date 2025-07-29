@@ -9,7 +9,7 @@ from datetime import datetime, timedelta
 from investbook.sources.yfinance.info import YahooFinanceInfo  
 from datetime import datetime, timedelta
 from investbook.app.front.components.searchbar import (SearchBar,SearchStyle,DataSet)
-import asyncio
+from investbook.sources.fmp import FMPAPI
 
 
 class Cache:
@@ -41,7 +41,7 @@ class Cache:
 
 class Login:
     
-    def __init__(self, file_path="investbook/app/front/images/usuarios.json"):
+    def __init__(self, file_path="investbook/investbook/app/front/images/usuarios.json"):
         self.file_path = file_path
 
     def _load_data(self):
@@ -115,15 +115,14 @@ class ToggleButton(ui.button):
 
 class Main:
     def __init__(self) -> None:
-        self.historical_cache = Cache()
-        self.info_cache = Cache()
-        self.news_cache = Cache()
-
+        self.cache = Cache()
         self.charts = {}
         self.cards = []
         self.usuario_actual = None
         self.login = Login()
-        self.api_semaphore = asyncio.Semaphore(2)
+        
+        API_KEY = 'UhcusRqvRQlT1DkVdH4JFFdW8KRtXEj4'
+        self.fmp = FMPAPI(api_key=API_KEY)
         
         tickers = self.login.obtener_tickers(self.usuario_actual)
         
@@ -140,7 +139,7 @@ class Main:
                 ):
                     with ui.row().classes('justify-between items-start md:flex-row sm:flex-col sm:items-center sm:text-center'):
                         with ui.column().classes('items-left text-left md:mr-40 sm:items-center sm:text-center'):
-                            ui.image("investbook/app/front/images/logo2.png").classes("w-64 mb-6 sm:w-40")  
+                            ui.image("investbook/investbook/app/front/images/logo2.png").classes("w-64 mb-6 sm:w-40")  
                             ui.label('Iniciar sesión').classes('text-4xl font-semibold md:text-4xl sm:text-2xl')  # Texto más grande solo en PC
 
                         with ui.column().classes('text-white space-y-4 w-full'):
@@ -159,24 +158,25 @@ class Main:
                             
                             
         @ui.page('/')
-        async def create_stock_cards(client: Client):
-            if not self.usuario_actual:
+        def create_stock_cards(client: Client):
+            if not self.usuario_actual:  
                 ui.navigate.to('/login')
-                return
-
+                return  
+            
             tickers = self.login.obtener_tickers(self.usuario_actual)
-
+            
             client.layout.classes(Colors.body)
             Layout(self.usuario_actual)
-
+            
             stocks = []
-            selected_stock = [None]
-
+            selected_stock = [None]  
+            
+                
             async def check_stocks():
                 try:
-                    api = AssetsAPI(fmp_api_key='4Y2glVed0qPOPExJM2Hrj2f4mUPUSPPP')
+                    api = AssetsAPI(fmp_api_key='UhcusRqvRQlT1DkVdH4JFFdW8KRtXEj4')
                     data = api.fmp.stock.list()
-                    return [s.symbol for s in data]
+                    return [s.symbol for s in data]  
                 except Exception as e:
                     print(e)
                     return []
@@ -188,26 +188,28 @@ class Main:
                     return
 
                 if not stocks:
-                    stocks.extend(await check_stocks())
-                results = [s for s in stocks if query in s.lower()][:3]
+                    stocks.extend(await check_stocks())  
+                results = [s for s in stocks if query in s.lower()][:3]  
 
-                results_container.clear()
+                results_container.clear() 
                 with results_container:
                     for stock in results:
-                        ui.button(stock, on_click=lambda s=stock: select_stock(s, client)) # Pasa 'client' aquí
+                        ui.button(stock, on_click=lambda s=stock: select_stock(s))
 
-            async def select_stock(stock, client: Client): # Asegúrate de que reciba 'client'
-                search_input.set_value(stock)
-                selected_stock[0] = stock
-                results_container.clear()
+
+            def select_stock(stock):
+                search_input.set_value(stock)  # Establecer el valor seleccionado en el input
+                selected_stock[0] = stock  
+                results_container.clear()  # Limpiar los resultados mostrados
                 if selected_stock[0]:
-                    await self.add_ticker_to_user(selected_stock[0], client) # Pasa 'client' aquí
-                search_input.set_value('')
-                search_input.placeholder = 'Buscar stock...'
-                results_container.clear()
+                    self.add_ticker_to_user(selected_stock[0])  
+                search_input.set_value('')  # Limpiar el input
+                search_input.placeholder = 'Buscar stock...'  # Restablecer el placeholder
+                results_container.clear()  # Limpiar el contenedor de resultados
 
-            with ui.row().classes("w-full justify-end items-center"):
-                with ui.column().classes("relative w-48"):
+
+            with ui.row().classes("w-full justify-end items-center"): 
+                with ui.column().classes("relative w-48"):  # Contenedor relativo para posicionar el results_container
                     search_input = ui.input(
                         placeholder="Buscar stock...",
                         on_change=update_search
@@ -219,55 +221,24 @@ class Main:
                         "background-color: #e5ecf5; max-height: 299px; overflow-y: auto; padding: 5px;"
                     )
 
-                ui.button('Buscar', on_click=lambda: select_stock(search_input.value, client)).classes( # Pasa 'client' aquí también si usas este botón
+                ui.button('Buscar', on_click=select_stock).classes(
                     'bg-blue-500 text-white px-4 py-2 rounded-lg shadow-lg hover:bg-blue-400 ml-4'
-                )
+    )
 
+
+
+            
             with ui.row().classes('grid grid-cols-1 md:grid-cols-2 gap-10 mx-auto w-full justify-evenly').style('padding-left: 30px; padding-right: 30px;') as self.card_container:
-                card_creation_tasks = []
-                for ticker in tickers:
-                    card_creation_tasks.append(self.create_stock_card(client, ticker))
-                await asyncio.gather(*card_creation_tasks)
+
+                    for ticker in tickers:
+                        self.create_stock_card(client, ticker)
 
 
-    async def add_ticker_to_user(self, ticker, client: Client):
+    def add_ticker_to_user(self, ticker):
+        
         self.login.agregar_ticker(self.usuario_actual, ticker)
-        with client:
-            ui.notify(f"Añadiendo {ticker} a tu cartera...", type='info')
-            await ui.run_javascript('window.location.reload()')
-
-    # Nuevas funciones para obtener datos con cachés específicas
-    async def get_stock_data(self, ticker: str):
-        cached_data = self.historical_cache.get(ticker) # Usa la caché de historial
-        if cached_data:
-            return cached_data
-        else:
-            data = await self.fetch_historical_data_from_api(ticker)
-            if data:
-                self.historical_cache.set(ticker, data)
-            return data
-
-    async def get_info_data(self, ticker: str):
-        cached_data = self.info_cache.get(ticker) # Usa la caché de información
-        if cached_data:
-            return cached_data
-        else:
-            yahoo_info = YahooFinanceInfo()
-            info = await asyncio.to_thread(yahoo_info.get_info, ticker)
-            if info:
-                self.info_cache.set(ticker, info)
-            return info
-
-    async def get_news_data(self, ticker: str):
-        cached_data = self.news_cache.get(ticker) # Usa la caché de noticias
-        if cached_data:
-            return cached_data
-        else:
-            api = AssetsAPI(finhub_api_key='d1vlb09r01qqgeem6m80d1vlb09r01qqgeem6m8g')
-            news = await asyncio.to_thread(api.finhub.get_symbol.company_news, ticker)
-            if news:
-                self.news_cache.set(ticker, news)
-            return news
+        
+        self.create_stock_card(self.usuario_actual, ticker)
         
 
     def login_user(self, client: Client, usuario, contrasena):
@@ -290,9 +261,10 @@ class Main:
             }.get(period, 365)
 
             filtered_data = historical_data[-days:]
-            
+
             dates = [data.date for data in filtered_data]
             close_prices = [data.close for data in filtered_data]
+
 
             return ui.echart({
                 'grid': {
@@ -337,10 +309,10 @@ class Main:
         chart = self.charts.get(ticker)
         if chart:
             try:
-                if chart in chart.parent_slot.children:
+                if hasattr(chart, 'parent_slot') and chart.parent_slot and chart in chart.parent_slot.children:
                     chart.delete()
-            except ValueError:
-                print(f"El gráfico para {ticker} no se encuentra en la lista de hijos para eliminarlo.")
+            except (ValueError, AttributeError) as e:
+                print(f"El gráfico para {ticker} no se pudo eliminar: {e}")
 
         days = {
             "1 Semana": 7,
@@ -352,23 +324,25 @@ class Main:
 
         filtered_data = historical_data[-days:]
         
-        new_chart_options = self.e_chart(ticker, period, filtered_data)
+        new_chart = self.e_chart(ticker, period, filtered_data)
+        self.charts[ticker] = new_chart
 
-        self.charts[ticker] = new_chart_options
 
-
-    async def fetch_historical_data_from_api(self, ticker: str):
-            print(f"[{datetime.now()}] Intentando obtener historical data para {ticker}...")
-            try:
-                yahoo_historical = YahooFinanceHistorical()
-                historical_data = await asyncio.wait_for(asyncio.to_thread(yahoo_historical.get_historical_data, ticker, period="1y"), timeout=20)
-                print(f"[{datetime.now()}] Obtenido historical data para {ticker}.")
-                await asyncio.sleep(1) # Pausa
-                return historical_data
-            except Exception as e:
-                print(f"[{datetime.now()}] ERROR al obtener historical data para {ticker}: {e}")
-                ui.notify(f"Error al cargar datos históricos para {ticker}: {e}", color='negative')
-                return None
+    def fetch_data_from_api(self, ticker: str):
+        try:
+            historical_data = self.fmp.historical.historical(ticker, interval="4hour") 
+            if not historical_data:
+                print(f"No se encontraron datos históricos para {ticker}")
+                return []
+            
+                # Ordenar por fecha (los objetos Historical tienen atributo .date)
+            historical_data.sort(key=lambda x: x.date)
+            
+            return historical_data
+        
+        except Exception as e:
+            print(f"Error al obtener datos históricos de FMP para {ticker}: {e}")
+            return []
     
     
     def eliminar_ticker(self, usuario, ticker):
@@ -403,37 +377,39 @@ class Main:
         ui.navigate.reload()
          
 
-    async def get_stock_data(self, ticker: str):
-        # Usa self.historical_cache para los datos históricos
-        cached_data = self.historical_cache.get(ticker)
+    def get_stock_data(self, ticker: str):
+        cached_data = self.cache.get(ticker)
 
         if cached_data:
             print(f"Usando datos de caché para {ticker}")
             return cached_data
         else:
-            # Ahora esperamos el resultado de la coroutine
-            data = await self.fetch_historical_data_from_api(ticker)
-            if data: # Solo guarda en caché si los datos se obtuvieron correctamente
-                # Usa self.historical_cache para guardar los datos históricos
-                self.historical_cache.set(ticker, data)
+            data = self.fetch_data_from_api(ticker)
+            self.cache.set(ticker, data)
             return data
         
         
-    async def create_stock_card(self, client: Client, ticker: str, period: str = "1y", prepend: bool = False):
+    def create_stock_card(self, client: Client, ticker: str, period: str = "1y", prepend: bool = False):
         try:
-            historical_data = await self.get_stock_data(ticker) # Espera los datos históricos
-            info_ticker = await self.get_info_data(ticker) # Espera la información del ticker
-            news = await self.get_news_data(ticker) # Espera las noticias
+            info_ticker = self.fmp.stock.fundamentals(ticker)
+            historical_data = self.get_stock_data(ticker)
+            company_name = info_ticker.company_name 
 
-            company_name = info_ticker.company_name
+            # Validar que tenemos datos históricos
+            if not historical_data or len(historical_data) == 0:
+                print(f"No hay datos históricos para {ticker}")
+                return
 
-            dates = [data.date for data in historical_data] if historical_data else []
-            close_prices = [data.close for data in historical_data] if historical_data else []
-
+            # Obtener noticias (manejar si falla)
+            try:
+                api = AssetsAPI(finhub_api_key='d24a2u1r01qmb591b210d24a2u1r01qmb591b21g')
+                news = api.finhub.get_symbol.company_news(ticker)
+            except Exception as e:
+                print(f"Error obteniendo noticias para {ticker}: {e}")
+                news = []
+            
         except Exception as e:
-            print(f"Error en create_stock_card para {ticker}: {e}")
-            with client:
-                ui.notify(f"No se pudo crear la tarjeta para {ticker}. Error: {e}", color='negative')
+            print(f"Error: {e}")
             return
 
         with self.card_container:
@@ -443,22 +419,43 @@ class Main:
                         with ui.column().classes('flex-none w-52'):
                             ui.label(company_name).classes('text-3xl text-gray-800 text-left font-semibold').style('overflow-wrap: break-word; word-wrap: break-word; white-space: normal;')
                             ui.label(f'({ticker})').classes('text-sm font-medium text-gray-500')
-                            if historical_data:
-                                diferencia_porcentual = ((historical_data[-1].close - historical_data[-2].close) / historical_data[-2].close) * 100
-                                ui.label(f'${historical_data[-1].close:,.2f}').classes('text-4xl text-right font-extrabold text-gray-800')
+                            
+                            if historical_data and len(historical_data) >= 2:
+                                # Si historical_data son objetos Pydantic
+                                if hasattr(historical_data[-1], 'close'):
+                                    current_close = historical_data[-1].close
+                                    previous_close = historical_data[-2].close
+                                # Si son diccionarios
+                                else:
+                                    current_close = historical_data[-1]['close']
+                                    previous_close = historical_data[-2]['close']
+                                
+                                diferencia_porcentual = ((current_close - previous_close) / previous_close) * 100
+                                ui.label(f'${current_close:,.2f}').classes('text-4xl text-right font-extrabold text-gray-800')
+                                
                                 if diferencia_porcentual > 0:
-                                    ui.label(f'+ {diferencia_porcentual:,.2f}%').classes('text-xl text-right text-green-500')  
+                                    ui.label(f'+ {diferencia_porcentual:,.2f}%').classes('text-xl text-right text-green-500')
                                 else:
                                     ui.label(f'{diferencia_porcentual:,.2f}%').classes('text-xl text-right text-red-500')  
+                            elif historical_data and len(historical_data) >= 1:
+                                # Solo un dato disponible
+                                current_close = historical_data[-1].close if hasattr(historical_data[-1], 'close') else historical_data[-1]['close']
+                                ui.label(f'${current_close:,.2f}').classes('text-4xl text-right font-extrabold text-gray-800')
+                                ui.label('Sin datos de comparación').classes('text-xl text-right text-gray-500')
                             else:
-                                ui.label(f'No disponible').classes('text-4xl text-right font-extrabold text-gray-800')
+                                # Sin datos históricos
+                                ui.label('No disponible').classes('text-4xl text-right font-extrabold text-gray-800')
 
                             ui.button('Ver más datos', on_click=lambda: ui.navigate.to(f"/info/{ticker}"))
                             
-                        with ui.column().classes('flex-1 w-full h-auto ml-0 md:ml-4 md:pl-10 flex justify-right items-right overflow-hidden'):  # Aquí agregamos overflow-hidden
-
-                            if historical_data:
+                        with ui.column().classes('flex-1 w-full h-auto ml-0 md:ml-4 md:pl-10 flex justify-right items-right overflow-hidden'):
+                            if historical_data and len(historical_data) > 0:
+                                # Manejar tanto objetos Pydantic como diccionarios
+                                dates = [data.date for data in historical_data]
+                                close_prices = [data.close for data in historical_data]
+                                
                                 formatted_close_prices = [f"{price:.2f}" for price in close_prices]
+                                
                                 chart = ui.echart({
                                     'xAxis': {
                                         'type': 'category',
@@ -479,9 +476,9 @@ class Main:
                                     'tooltip': {
                                         'trigger': 'axis'
                                     }
-                                }).classes('w-full sm:w-full md:w-96 h-60 rounded-lg shadow-sm')  # Ajuste aquí: solo w-full en móvil
+                                }).classes('w-full sm:w-full md:w-96 h-60 rounded-lg shadow-sm')
                             else:
-                                ui.label("No disponible").classes('text-center text-gray-500')
+                                ui.label("No hay datos disponibles").classes('text-center text-gray-500')
 
                     ui.button(icon='delete', on_click=lambda: self.confirm_delete(card, ticker)).classes(
                         'absolute top-1 right-1 p-1 bg-blue-50 text-white hover:bg-gray-800 transition-all duration-200').style(
@@ -490,7 +487,7 @@ class Main:
 
 
 
-                    with ui.row().classes('w-full mt-6 '):
+                    with ui.row().classes('w-full mt-6'):
                         with ui.column().classes('w-full'):
                             with ui.tabs().classes('mb-0 w-full justify-center items-center').style('border-bottom: 2px solid #e2e8f0') as tabs:
                                 pl = ui.tab('Información básica')
@@ -543,13 +540,17 @@ class Main:
                                             ui.label(f"Capitalización de mercado:").classes('text-base text-gray-700 font-bold')
                                             ui.label(f"${info_ticker.market_cap:,.2f}").classes('text-base text-gray-700')
 
-                                        with ui.row().classes('w-full justify-start items-center'):
-                                            ui.label(f"Precio actual:").classes('text-base text-gray-700 font-bold')
-                                            ui.label(f"${historical_data[-1].close:,.2f}").classes('text-base text-gray-700')
+                                        if historical_data and len(historical_data) >= 1:
+                                            current_close = historical_data[-1].close
+                                            with ui.row().classes('w-full justify-start items-center'):
+                                                ui.label(f"Precio actual:").classes('text-base text-gray-700 font-bold')
+                                                ui.label(f"${current_close:,.2f}").classes('text-base text-gray-700')
 
-                                        with ui.row().classes('w-full justify-start items-center'):
-                                            ui.label(f"Cierre anterior:").classes('text-base text-gray-700 font-bold')
-                                            ui.label(f"${historical_data[-2].close:,.2f}").classes('text-base text-gray-700')
+                                        if historical_data and len(historical_data) >= 2:
+                                            previous_close = historical_data[-2].close
+                                            with ui.row().classes('w-full justify-start items-center'):
+                                                ui.label(f"Cierre anterior:").classes('text-base text-gray-700 font-bold')
+                                                ui.label(f"${previous_close:,.2f}").classes('text-base text-gray-700')
 
                                         with ui.row().classes('w-full justify-start items-center'):
                                             ui.label(f"Dividendos:").classes('text-base text-gray-700 font-bold')

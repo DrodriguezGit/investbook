@@ -1,3 +1,4 @@
+
 from investbook.app.front.index import Main
 from investbook.app.front.stocks_fmp import Stocks_fmp
 from investbook.app.front.indices import Indices

@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 import yfinance as yf
+from yahoo_fin import stock_info as si
 
 
 class StockInfo(BaseModel):
@@ -63,5 +64,4 @@ class YahooFinanceInfo:
             quick_ratio=info.get('quickRatio', 0.0),
             current_ratio=info.get('currentRatio', 0.0),
         )
-        
         

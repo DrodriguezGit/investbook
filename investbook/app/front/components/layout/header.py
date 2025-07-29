@@ -15,7 +15,7 @@ class Header(ui.header):
         self.classes(self.classes_def)
         self.props('reveal elevated')
         
-        logo_path = 'investbook/app/front/images/logo.png'
+        logo_path = 'investbook/investbook/app/front/images/logo.png'
 
         # Función para abrir el enlace. Está hecho feo pero las imágenes se comportan diferente
         def open_link():
@@ -31,7 +31,7 @@ class Header(ui.header):
                     ui.image(logo_path).on('click', open_link).classes("max-w-xs")
 
                 with ui.column().classes("flex-grow flex justify-left items-left"):
-                    ui.image("investbook/app/front/images/investbook2.png").classes("w-72")
+                    ui.image("investbook/investbook/app/front/images/investbook2.png").classes("w-72")
 
                 with ui.column().classes('flex-none ml-auto'):
                     with ui.row().classes("flex items-center"):

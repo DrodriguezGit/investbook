@@ -7,6 +7,8 @@ from datetime import datetime
 from investbook.sources.yfinance.info import YahooFinanceInfo  
 from investbook.sources.yfinance.historical import YahooFinanceHistorical
 from investbook.app.front.shared.layout import Layout
+from investbook.sources.fmp import FMPAPI
+
 
 
 class Login:
@@ -65,8 +67,7 @@ class Info:
     def __init__(self) -> None:
         self.usuario_actual = None
         self.login = Login()
-        # tickers = self.login.obtener_tickers(self.usuario_actual)
-        
+       
        
 
         @ui.page('/info/{ticker}')
@@ -80,13 +81,22 @@ class Info:
 
             try:
                 api = AssetsAPI(fmp_api_key='qd8qbTjUzah8tDi3mwM1MaDeskOanjwy')
-                yahoo_info = YahooFinanceInfo()
-                yahoo_historical = YahooFinanceHistorical()
+                API_KEY='4Y2glVed0qPOPExJM2Hrj2f4mUPUSPPP'
+                fmp = FMPAPI(api_key=API_KEY)
+                info_ticker = fmp.stock.fundamentals(ticker)
+                # yahoo_info = YahooFinanceInfo()
                 
-                info_ticker = yahoo_info.get_info(ticker) 
-                historical_data = yahoo_historical.get_historical_data(ticker, "1y")                    
-                dates = [data.date for data in historical_data] if historical_data else []
-                close_prices = [data.close for data in historical_data] if historical_data else []
+                # info_ticker = yahoo_info.get_info(ticker) 
+                historical_data = fmp.historical.historical(ticker, interval="4hour")    
+                if hasattr(historical_data[0], 'date'):
+                # Son objetos Pydantic
+                    dates = [data.date for data in historical_data]
+                    close_prices = [data.close for data in historical_data]
+                else:
+                # Son diccionarios
+                    dates = [data['date'] for data in historical_data]
+                    close_prices = [data['close'] for data in historical_data]                
+
                 
                 price_data = api.fmp.finance.income_statement(ticker, period = 'annual')    
                 
@@ -125,7 +135,7 @@ class Info:
                             ui.label(f"Cierre anterior: ${info_ticker.previous_close:,.2f}").classes('text-base text-gray-700')
                             ui.label(f"Ingresos totales: ${info_ticker.total_revenue:,.2f}").classes('text-base text-gray-700')
                             ui.label(f"Ingreso neto: ${info_ticker.net_income:,.2f}").classes('text-base text-gray-700')
-                            ui.label(f"Flujo de caja libre: ${info_ticker.free_cashflow:,.2f}").classes('text-base text-gray-700')
+
 
                     with ui.column().classes('w-full md:w-[23%] mb-4 sm:w-full'):
                         ui.label("Ratios y Métricas Financieras").classes('text-lg font-semibold text-center mb-4')

@@ -4,9 +4,8 @@
             "username": "b",
             "password": "b",
             "tickers": [
-                "AAPL",
                 "TSLA",
-                "IDEXY"
+                "AAPL"
             ]
         }
     ]

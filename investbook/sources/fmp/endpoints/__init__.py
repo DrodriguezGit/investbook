@@ -3,6 +3,7 @@ from investbook.sources.fmp.endpoints.company import FmpCompany
 from investbook.sources.fmp.endpoints.price import FmpPrice
 from investbook.sources.fmp.endpoints.financials import FmpFinancialStates
 from investbook.sources.fmp.endpoints.dividens import FmpDividens
+from investbook.sources.fmp.endpoints.historical import FmpHistorical
 
 
 
@@ -11,5 +12,6 @@ __all__ = [
     "FmpCompany",
     "FmpPrice",
     "FmpFinancialStates",
-    "FmpDividens"
+    "FmpDividens",
+    "FmpHistorical"    
 ]

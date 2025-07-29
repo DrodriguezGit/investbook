@@ -47,6 +47,7 @@ watchfiles = ">=0.13"
 svgwrite = "*"
 pillow = "*"
 setuptools = "*"
+yahoo-fin = "^0.8.9.1"
 
 
 

@@ -3,7 +3,8 @@ from investbook.sources.fmp.endpoints import (
     FmpCompany,
     FmpPrice,
     FmpFinancialStates,
-    FmpDividens
+    FmpDividens,
+    FmpHistorical
 )
 
 class FMPAPI:
@@ -14,6 +15,10 @@ class FMPAPI:
     @property
     def stock(self):
         return FmpStock(self._api_key)
+    
+    @property
+    def historical(self):
+        return FmpHistorical(self._api_key)
      
     @property
     def company(self):
