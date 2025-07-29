@@ -4,7 +4,6 @@
 
 InvestBook es una plataforma integral de análisis financiero que permite a los usuarios realizar seguimiento de acciones, visualizar datos históricos, analizar métricas financieras y mantenerse actualizado con las últimas noticias del mercado. Construida con Python y NiceGUI, ofrece una interfaz intuitiva y funcionalidades avanzadas para inversores de todos los niveles.
 
-![InvestBook Logo](investbook/app/front/images/logo2.png)
 
 ## 🚀 Comenzando
 
