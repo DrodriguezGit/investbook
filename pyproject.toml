@@ -48,6 +48,8 @@ svgwrite = "*"
 pillow = "*"
 setuptools = "*"
 yahoo-fin = "^0.8.9.1"
+lxml = {version = "^6.0.0", extras = ["all"]}
+requests-html = "^0.10.0"
 
 
 

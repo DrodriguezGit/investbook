@@ -41,7 +41,7 @@ class Cache:
 
 class Login:
     
-    def __init__(self, file_path="investbook/investbook/app/front/images/usuarios.json"):
+    def __init__(self, file_path="investbook/app/front/images/usuarios.json"):
         self.file_path = file_path
 
     def _load_data(self):
@@ -120,8 +120,11 @@ class Main:
         self.cards = []
         self.usuario_actual = None
         self.login = Login()
+        self.ticker_precios_actuales = {}
+        self.rentabilidad_labels = {}
+        self.precios_compra = {}
         
-        API_KEY = 'UhcusRqvRQlT1DkVdH4JFFdW8KRtXEj4'
+        API_KEY = '4Y2glVed0qPOPExJM2Hrj2f4mUPUSPPP'
         self.fmp = FMPAPI(api_key=API_KEY)
         
         tickers = self.login.obtener_tickers(self.usuario_actual)
@@ -135,25 +138,25 @@ class Main:
                 with ui.card().classes(
                     'shadow-lg rounded-lg bg-gradient-to-r from-[#5898d4] to-[#88c5e9] text-white '
                     'p-8 flex md:flex-row md:space-x-10 md:items-start '
-                    'sm:flex-col sm:space-y-6 sm:w-full sm:max-w-md sm:p-6'
-                ):
+                    'sm:flex-col sm:space-y-6 sm:w-full sm:max-w-md sm:p-6'):
+
                     with ui.row().classes('justify-between items-start md:flex-row sm:flex-col sm:items-center sm:text-center'):
+
                         with ui.column().classes('items-left text-left md:mr-40 sm:items-center sm:text-center'):
-                            ui.image("investbook/investbook/app/front/images/logo2.png").classes("w-64 mb-6 sm:w-40")  
+                            # ui.image("investbook/app/front/images/logo2.png").classes("w-64 mb-6 sm:w-40")  
                             ui.label('Iniciar sesión').classes('text-4xl font-semibold md:text-4xl sm:text-2xl')  # Texto más grande solo en PC
 
                         with ui.column().classes('text-white space-y-4 w-full'):
+
                             usuario_input = ui.input(label="Usuario").classes(
-                                'w-full text-white border-b-2 border-white bg-transparent font-semibold'
-                            )
+                                'w-full text-white border-b-2 border-white bg-transparent font-semibold')
+                            
                             contrasena_input = ui.input(label="Contraseña", password=True).classes(
-                                'w-full text-white border-b-2 border-white bg-transparent font-bold'
-                            )
+                                'w-full text-white border-b-2 border-white bg-transparent font-bold')
 
                             ui.button('Iniciar sesión', on_click=lambda: self.login_user(client, usuario_input.value, contrasena_input.value)).classes(
                                 'bg-orange-500 text-white px-6 py-3 rounded-lg shadow-lg hover:bg-orange-400 transition duration-300 ease-in-out '
-                                'sm:w-full sm:px-4 sm:py-2'
-                            )
+                                'sm:w-full sm:px-4 sm:py-2')
 
                             
                             
@@ -174,7 +177,7 @@ class Main:
                 
             async def check_stocks():
                 try:
-                    api = AssetsAPI(fmp_api_key='UhcusRqvRQlT1DkVdH4JFFdW8KRtXEj4')
+                    api = AssetsAPI(fmp_api_key='4Y2glVed0qPOPExJM2Hrj2f4mUPUSPPP')
                     data = api.fmp.stock.list()
                     return [s.symbol for s in data]  
                 except Exception as e:
@@ -210,22 +213,12 @@ class Main:
 
             with ui.row().classes("w-full justify-end items-center"): 
                 with ui.column().classes("relative w-48"):  # Contenedor relativo para posicionar el results_container
-                    search_input = ui.input(
-                        placeholder="Buscar stock...",
-                        on_change=update_search
-                    ).classes("text-xl w-full")
+                    search_input = ui.input(placeholder="Buscar stock...", on_change=update_search).classes("text-xl w-full")
 
-                    results_container = ui.column().classes(
-                        "text-center items-left absolute top-full left-0 rounded-lg w-full z-10 mt-2 border-4"
-                    ).style(
-                        "background-color: #e5ecf5; max-height: 299px; overflow-y: auto; padding: 5px;"
-                    )
+                    results_container = ui.column().classes("text-center items-left absolute top-full left-0 rounded-lg w-full z-10 mt-2 border-4").style
+                    ("background-color: #e5ecf5; max-height: 299px; overflow-y: auto; padding: 5px;")
 
-                ui.button('Buscar', on_click=select_stock).classes(
-                    'bg-blue-500 text-white px-4 py-2 rounded-lg shadow-lg hover:bg-blue-400 ml-4'
-    )
-
-
+                ui.button('Buscar', on_click=select_stock).classes('bg-blue-500 text-white px-4 py-2 rounded-lg shadow-lg hover:bg-blue-400 ml-4')
 
             
             with ui.row().classes('grid grid-cols-1 md:grid-cols-2 gap-10 mx-auto w-full justify-evenly').style('padding-left: 30px; padding-right: 30px;') as self.card_container:
@@ -244,7 +237,6 @@ class Main:
     def login_user(self, client: Client, usuario, contrasena):
         if self.login.verificar_login(usuario, contrasena):
             self.usuario_actual = usuario
-            
             ui.navigate.to('/')
         else:
             ui.label("Credenciales incorrectas").classes('text-red-500')
@@ -369,6 +361,115 @@ class Main:
                             ui.button("Atrás",on_click=lambda: dialog.close()).classes(" text-white rounded-xl items-center text-center")
         dialog.open()
 
+    def añadir_inversion(self, card, ticker: str, rentabilidad_label):
+
+        info_ticker = self.fmp.stock.fundamentals(ticker)
+        precio_actual = info_ticker.current_price
+
+        self.precios_compra[ticker] = precio_actual
+
+        with ui.dialog() as dialog:
+            with ui.card().classes("border-2 rounded-4xl bg-gray-100 p-8 w-96"):
+                with ui.column().classes('text-center items-center'):
+                    with ui.row():
+                        ui.label("¿Cuánto quieres invertir?").classes("text-xl text-gray-900 font-semibold text-center items-center")
+                    
+                    # Campo para ingresar los euros a invertir
+                    with ui.row().classes("w-full mt-4"):
+                        euros_input = ui.input(label="Euros a invertir", placeholder="Ej: 1000").classes("w-full")
+
+                    # Campo para ingresar el precio
+                    with ui.row().classes("w-full mt-4"):
+                        precio_input = ui.input(label="Precio por acción (€)", placeholder= precio_actual).classes("w-full")
+                    
+                    # Botón Confirmar
+                    with ui.row().classes("mt-6 gap-8 justify-between text-center items-center"):
+                        ui.button("Confirmar", on_click=lambda: self.confirmar_inversion(card, ticker, euros_input, precio_input, dialog, rentabilidad_label))
+                        
+
+                    # Botón Atrás
+                    with ui.row().classes("mt-6 gap-8 justify-between text-center items-center"):
+                        ui.button(
+                            "Atrás",
+                            on_click=lambda: dialog.close()
+                        ).classes("bg-gray-400 text-white rounded-xl items-center text-center")
+
+                    
+        dialog.open()
+
+    def confirmar_inversion(self, card, ticker, euros_input, precio_input, dialog, rentabilidad_label):
+        try:
+            # Usar la instancia de Login para cargar datos
+            datos = self.login._load_data()
+
+            euros = float(euros_input.value)
+            precio_compra = float(precio_input.value)
+
+            if precio_compra == 0:
+                print("El precio no puede ser 0")
+                return
+
+            cantidad_acciones = euros / precio_compra
+
+            precio_actual = self.ticker_precios_actuales.get(ticker, None)
+            if precio_actual is None:
+                print(f"No se encontró el precio actual para {ticker}")
+                return
+
+            rentabilidad = (precio_actual - precio_compra) * cantidad_acciones
+            rentabilidad_label.text = f"Rentabilidad estimada: {rentabilidad:.2f} €"
+
+            for usuario in datos["usuarios"]:
+                if usuario["username"] == self.usuario_actual:
+                    if "inversiones" not in usuario:
+                        usuario["inversiones"] = []
+
+                    for inversion in usuario["inversiones"]:
+                        if inversion["ticker"] == ticker:
+                            inversion["euros_invertidos"] = euros
+                            inversion["precio_compra"] = precio_compra
+                            break
+                    else:
+                        usuario["inversiones"].append({
+                            "ticker": ticker,
+                            "euros_invertidos": euros,
+                            "precio_compra": precio_compra
+                        })
+                    break
+
+            # Guardar datos usando la instancia de Login
+            self.login._save_data(datos)
+
+            ui.notify(f"Inversión guardada para {ticker}", type="success")
+            dialog.close()
+
+            self.actualizar_rentabilidad(ticker, rentabilidad_label, precio_compra, cantidad_acciones)
+
+        except ValueError:
+            print("Por favor ingresa valores numéricos válidos.")
+
+    def mostrar_rentabilidad_guardada(self, ticker: str, rentabilidad_label: ui.label):
+        datos = self.login._load_data()
+
+        euros_invertidos = None
+        precio_compra = None
+
+        for usuario in datos["usuarios"]:
+            if usuario["username"] == self.usuario_actual:
+                for inversion in usuario.get("inversiones", []):
+                    if inversion["ticker"] == ticker:
+                        euros_invertidos = inversion["euros_invertidos"]
+                        precio_compra = inversion["precio_compra"]
+                        break
+                break
+
+        if euros_invertidos is not None and precio_compra is not None:
+            cantidad_acciones = euros_invertidos / precio_compra
+            self.actualizar_rentabilidad(ticker, rentabilidad_label, precio_compra, cantidad_acciones)
+        else:
+            rentabilidad_label.set_text("Rentabilidad: N/A")
+
+
         
     def eliminar_ticker_and_delete(self, card, ticker, dialog):
         self.eliminar_ticker(self.usuario_actual, ticker)  
@@ -388,12 +489,23 @@ class Main:
             self.cache.set(ticker, data)
             return data
         
+    def actualizar_rentabilidad(self, ticker: str, rentabilidad_label: ui.label, precio_compra: float, cantidad_acciones: float):
+        precio_actual = self.ticker_precios_actuales.get(ticker)
+        if precio_actual is not None and precio_compra is not None:
+            rentabilidad = (precio_actual - precio_compra) * cantidad_acciones
+            rentabilidad_label.set_text(f"Rentabilidad actual: {rentabilidad:.2f}€")
+        else:
+            rentabilidad_label.set_text("Rentabilidad: N/A")
+        
         
     def create_stock_card(self, client: Client, ticker: str, period: str = "1y", prepend: bool = False):
         try:
             info_ticker = self.fmp.stock.fundamentals(ticker)
             historical_data = self.get_stock_data(ticker)
             company_name = info_ticker.company_name 
+            precio_actual = info_ticker.current_price
+
+            self.ticker_precios_actuales[ticker] = precio_actual
 
             # Validar que tenemos datos históricos
             if not historical_data or len(historical_data) == 0:
@@ -447,7 +559,21 @@ class Main:
                                 ui.label('No disponible').classes('text-4xl text-right font-extrabold text-gray-800')
 
                             ui.button('Ver más datos', on_click=lambda: ui.navigate.to(f"/info/{ticker}"))
-                            
+
+                            rentabilidad_label = ui.label("").classes("text-lg mt-4 text-center")
+
+                            with ui.row().classes("items-center justify-between w-full"):
+                                with ui.column():
+                                    ui.button('Añadir inversión', on_click=lambda rentabilidad_label=rentabilidad_label: self.añadir_inversion(card=card, ticker=ticker, rentabilidad_label=rentabilidad_label)
+                                    ).classes('bg-orange-500 text-white px-3 py-2 rounded-lg shadow-lg hover:bg-orange-400 transition duration-300 ease-in-out')
+                                with ui.column().style("display: flex; align-items: center; justify-content: flex-start;"):
+                                    rentabilidad_label = ui.label("").classes("text-lg mt-4 text-center")
+                                      
+
+                            # Actualiza la etiqueta con los datos guardados
+                            self.mostrar_rentabilidad_guardada(ticker, rentabilidad_label)
+
+
                         with ui.column().classes('flex-1 w-full h-auto ml-0 md:ml-4 md:pl-10 flex justify-right items-right overflow-hidden'):
                             if historical_data and len(historical_data) > 0:
                                 # Manejar tanto objetos Pydantic como diccionarios
@@ -524,8 +650,9 @@ class Main:
                                     with ui.column().classes('w-full gap-4 items-center'):
                                         with ui.row().classes('w-full justify-center gap-4'):
                                             for period in ["1 Semana", "1 Mes", "3 Meses", "6 Meses", "1 Año"]:
-                                                ToggleButton(period, on_click=lambda p=period: self.apply_filter(ticker, p, historical_data)).classes(
-                                                    'bg-white text-black font-semibold px-6 py-3 rounded-lg shadow-md hover:bg-gray-200')
+                                                ToggleButton(period, on_click=lambda p=period: [self.apply_filter(ticker, p, historical_data),
+                                                self.actualizar_rentabilidad(ticker, rentabilidad_label, self.precios_compra.get(ticker))]
+                                                ).classes('bg-white text-black font-semibold px-6 py-3 rounded-lg shadow-md hover:bg-gray-200')
                                        
                                         with ui.row().classes('w-full justify-center'):
                                             chart = self.charts.get(ticker)

@@ -15,6 +15,8 @@ class AnalystTrend(BaseModel):
     hold: int  
     sell: int  
     period: str  
+    strongBuy: int
+    strongSell: int
 
 class MarketStatus(BaseModel):
     exchange: str 

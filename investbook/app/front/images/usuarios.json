@@ -1,11 +1,29 @@
 {
     "usuarios": [
         {
-            "username": "b",
-            "password": "b",
+            "username": "prueba",
+            "password": "prueba",
             "tickers": [
                 "TSLA",
-                "AAPL"
+                "AAPL",
+                "IDEXY"
+            ],
+            "inversiones": [
+                {
+                    "ticker": "TSLA",
+                    "euros_invertidos": 1000.0,
+                    "precio_compra": 300.0
+                },
+                {
+                    "ticker": "AAPL",
+                    "euros_invertidos": 1000.0,
+                    "precio_compra": 180.0
+                },
+                {
+                    "ticker": "IDEXY",
+                    "euros_invertidos": 500.0,
+                    "precio_compra": 13.0
+                }
             ]
         }
     ]
