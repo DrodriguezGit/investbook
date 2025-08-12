@@ -61,7 +61,7 @@ FINNHUB_API_KEY=tu_finnhub_api_key_aqui
 
 **5. Ejecuta la aplicación**
 
-Ejectuando el archivo main.py
+Ejecutando el archivo main.py
 
 
 **6. Accede a la aplicación**
@@ -91,4 +91,5 @@ Abre tu navegador y ve a: `http://localhost:8080`
 
 #### 📰 Noticias y Actualizaciones
 - Últimas noticias de cada
+
 
