@@ -68,6 +68,12 @@ Ejecutando el archivo main.py
 
 Abre tu navegador y ve a: `http://localhost:8080`
 
+En el login se usa:
+- Usuario: 'prueba'
+- Contraseña: 'prueba'
+
+Modificable en el archivo 'usuarios.json' en la carpeta 'images'
+
 ## ⚡ Uso
 
 ### Funcionalidades Principales
@@ -91,5 +97,6 @@ Abre tu navegador y ve a: `http://localhost:8080`
 
 #### 📰 Noticias y Actualizaciones
 - Últimas noticias de cada
+
 
 
